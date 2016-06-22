@@ -1,0 +1,2632 @@
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"BLEApplications.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.comm	rgbHandle,12,4
+  18              		.global	sendCapSenseSliderNotifications
+  19              		.bss
+  20              		.type	sendCapSenseSliderNotifications, %object
+  21              		.size	sendCapSenseSliderNotifications, 1
+  22              	sendCapSenseSliderNotifications:
+  23 0000 00       		.space	1
+  24              		.comm	RGBledData,4,4
+  25              		.global	deviceConnected
+  26              		.type	deviceConnected, %object
+  27              		.size	deviceConnected, 1
+  28              	deviceConnected:
+  29 0001 00       		.space	1
+  30              		.section	.text.CustomEventHandler,"ax",%progbits
+  31              		.align	2
+  32              		.global	CustomEventHandler
+  33              		.code	16
+  34              		.thumb_func
+  35              		.type	CustomEventHandler, %function
+  36              	CustomEventHandler:
+  37              	.LFB35:
+  38              		.file 1 ".\\BLEApplications.c"
+   1:.\BLEApplications.c **** /*****************************************************************************
+   2:.\BLEApplications.c **** * File Name: BleApplications.c
+   3:.\BLEApplications.c **** *
+   4:.\BLEApplications.c **** * Version: 1.0
+   5:.\BLEApplications.c **** *
+   6:.\BLEApplications.c **** * Description:
+   7:.\BLEApplications.c **** * This file implements the BLE capability in the PSoC 4 BLE Lab 4.
+   8:.\BLEApplications.c **** *
+   9:.\BLEApplications.c **** * Hardware Dependency:
+  10:.\BLEApplications.c **** * CY8CKIT-042 BLE Pioneer Kit
+  11:.\BLEApplications.c **** *
+  12:.\BLEApplications.c **** ******************************************************************************
+  13:.\BLEApplications.c **** * Copyright (2014), Cypress Semiconductor Corporation.
+  14:.\BLEApplications.c **** ******************************************************************************
+  15:.\BLEApplications.c **** * This software is owned by Cypress Semiconductor Corporation (Cypress) and is
+  16:.\BLEApplications.c **** * protected by and subject to worldwide patent protection (United States and
+  17:.\BLEApplications.c **** * foreign), United States copyright laws and international treaty provisions.
+  18:.\BLEApplications.c **** * Cypress hereby grants to licensee a personal, non-exclusive, non-transferable
+  19:.\BLEApplications.c **** * license to copy, use, modify, create derivative works of, and compile the
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 2
+
+
+  20:.\BLEApplications.c **** * Cypress Source Code and derivative works for the sole purpose of creating
+  21:.\BLEApplications.c **** * custom software in support of licensee product to be used only in conjunction
+  22:.\BLEApplications.c **** * with a Cypress integrated circuit as specified in the applicable agreement.
+  23:.\BLEApplications.c **** * Any reproduction, modification, translation, compilation, or representation of
+  24:.\BLEApplications.c **** * this software except as specified above is prohibited without the express
+  25:.\BLEApplications.c **** * written permission of Cypress.
+  26:.\BLEApplications.c **** *
+  27:.\BLEApplications.c **** * Disclaimer: CYPRESS MAKES NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, WITH
+  28:.\BLEApplications.c **** * REGARD TO THIS MATERIAL, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  29:.\BLEApplications.c **** * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  30:.\BLEApplications.c **** * Cypress reserves the right to make changes without further notice to the
+  31:.\BLEApplications.c **** * materials described herein. Cypress does not assume any liability arising out
+  32:.\BLEApplications.c **** * of the application or use of any product or circuit described herein. Cypress
+  33:.\BLEApplications.c **** * does not authorize its products for use as critical components in life-support
+  34:.\BLEApplications.c **** * systems where a malfunction or failure may reasonably be expected to result in
+  35:.\BLEApplications.c **** * significant injury to the user. The inclusion of Cypress' product in a life-
+  36:.\BLEApplications.c **** * support systems application implies that the manufacturer assumes all risk of
+  37:.\BLEApplications.c **** * such use and in doing so indemnifies Cypress against all charges. Use may be
+  38:.\BLEApplications.c **** * limited by and subject to the applicable Cypress software license agreement.
+  39:.\BLEApplications.c **** *****************************************************************************/
+  40:.\BLEApplications.c **** 
+  41:.\BLEApplications.c **** /*****************************************************************************
+  42:.\BLEApplications.c **** * Included headers
+  43:.\BLEApplications.c **** *****************************************************************************/
+  44:.\BLEApplications.c **** #include <main.h>
+  45:.\BLEApplications.c **** #include <BLEApplications.h>
+  46:.\BLEApplications.c **** 
+  47:.\BLEApplications.c **** 
+  48:.\BLEApplications.c **** /*****************************************************************************
+  49:.\BLEApplications.c **** * Static variables 
+  50:.\BLEApplications.c **** *****************************************************************************/
+  51:.\BLEApplications.c **** 
+  52:.\BLEApplications.c **** /* 'rgbHandle' stores RGB control data parameters */
+  53:.\BLEApplications.c **** CYBLE_GATT_HANDLE_VALUE_PAIR_T		rgbHandle;	
+  54:.\BLEApplications.c **** 
+  55:.\BLEApplications.c **** /*This flag is set when the Central device writes to CCC (Client Characteristic 
+  56:.\BLEApplications.c **** * Configuration) of the CapSense slider Characteristic to enable notifications */
+  57:.\BLEApplications.c **** uint8 sendCapSenseSliderNotifications = FALSE;	
+  58:.\BLEApplications.c **** 
+  59:.\BLEApplications.c **** /* Array to store the present RGB LED control data. The 4 bytes 
+  60:.\BLEApplications.c **** * of the array represents {R, G, B, Intensity} */
+  61:.\BLEApplications.c **** uint8 RGBledData[4];
+  62:.\BLEApplications.c **** 
+  63:.\BLEApplications.c **** /* This flag is used by application to know whether a Central 
+  64:.\BLEApplications.c **** * device has been connected. This is updated in BLE event callback 
+  65:.\BLEApplications.c **** * function*/
+  66:.\BLEApplications.c **** uint8 deviceConnected = FALSE;
+  67:.\BLEApplications.c **** 
+  68:.\BLEApplications.c **** 
+  69:.\BLEApplications.c **** /*******************************************************************************
+  70:.\BLEApplications.c **** * Function Name: CustomEventHandler
+  71:.\BLEApplications.c **** ********************************************************************************
+  72:.\BLEApplications.c **** * Summary:
+  73:.\BLEApplications.c **** * Call back event function to handle various events from BLE stack
+  74:.\BLEApplications.c **** *
+  75:.\BLEApplications.c **** * Parameters:
+  76:.\BLEApplications.c **** *  event:		event returned
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 3
+
+
+  77:.\BLEApplications.c **** *  eventParam:	link to value of the events returned
+  78:.\BLEApplications.c **** *
+  79:.\BLEApplications.c **** * Return:
+  80:.\BLEApplications.c **** *  void
+  81:.\BLEApplications.c **** *
+  82:.\BLEApplications.c **** *******************************************************************************/
+  83:.\BLEApplications.c **** void CustomEventHandler(uint32 event, void * eventParam)
+  84:.\BLEApplications.c **** {
+  39              		.loc 1 84 0
+  40              		.cfi_startproc
+  41 0000 80B5     		push	{r7, lr}
+  42              		.cfi_def_cfa_offset 8
+  43              		.cfi_offset 7, -8
+  44              		.cfi_offset 14, -4
+  45 0002 88B0     		sub	sp, sp, #32
+  46              		.cfi_def_cfa_offset 40
+  47 0004 00AF     		add	r7, sp, #0
+  48              		.cfi_def_cfa_register 7
+  49 0006 7860     		str	r0, [r7, #4]
+  50 0008 3960     		str	r1, [r7]
+  85:.\BLEApplications.c ****     /* Local variable to strore the write request parameters */
+  86:.\BLEApplications.c **** 	CYBLE_GATTS_WRITE_REQ_PARAM_T *wrReqParam;
+  87:.\BLEApplications.c ****     
+  88:.\BLEApplications.c ****     /* Local variable to store the current CCCD value */
+  89:.\BLEApplications.c **** 	uint8 CapSenseCCCDvalue[2];
+  90:.\BLEApplications.c **** 	
+  91:.\BLEApplications.c **** 	/* Handle value to update the CCCD */
+  92:.\BLEApplications.c **** 	CYBLE_GATT_HANDLE_VALUE_PAIR_T CapSenseNotificationCCCDhandle;
+  93:.\BLEApplications.c ****    
+  94:.\BLEApplications.c ****     switch(event)
+  51              		.loc 1 94 0
+  52 000a 7B68     		ldr	r3, [r7, #4]
+  53 000c 282B     		cmp	r3, #40
+  54 000e 0CD0     		beq	.L3
+  55 0010 04D8     		bhi	.L4
+  56 0012 012B     		cmp	r3, #1
+  57 0014 09D0     		beq	.L3
+  58 0016 262B     		cmp	r3, #38
+  59 0018 0BD0     		beq	.L5
+  95:.\BLEApplications.c ****     {
+  96:.\BLEApplications.c ****         case CYBLE_EVT_STACK_ON:
+  97:.\BLEApplications.c ****         case CYBLE_EVT_GAP_DEVICE_DISCONNECTED:
+  98:.\BLEApplications.c **** 			/* Start Advertisement and enter Discoverable mode*/
+  99:.\BLEApplications.c **** 			CyBle_GappStartAdvertisement(CYBLE_ADVERTISING_FAST);
+ 100:.\BLEApplications.c **** 			break;
+ 101:.\BLEApplications.c **** 			
+ 102:.\BLEApplications.c **** 		case CYBLE_EVT_GAPP_ADVERTISEMENT_START_STOP:
+ 103:.\BLEApplications.c **** 			/* Set the BLE state variable to control LED status */
+ 104:.\BLEApplications.c ****             if(CYBLE_STATE_DISCONNECTED == CyBle_GetState())
+ 105:.\BLEApplications.c ****             {
+ 106:.\BLEApplications.c ****                 /* Start Advertisement and enter Discoverable mode*/
+ 107:.\BLEApplications.c ****                 CyBle_GappStartAdvertisement(CYBLE_ADVERTISING_FAST);
+ 108:.\BLEApplications.c ****             }
+ 109:.\BLEApplications.c **** 			break;
+ 110:.\BLEApplications.c **** 			
+ 111:.\BLEApplications.c ****         case CYBLE_EVT_GATT_CONNECT_IND:
+ 112:.\BLEApplications.c **** 			/* This flag is used in application to check connection status */
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 4
+
+
+ 113:.\BLEApplications.c **** 			deviceConnected = TRUE;
+ 114:.\BLEApplications.c **** 			break;
+ 115:.\BLEApplications.c ****         
+ 116:.\BLEApplications.c ****         case CYBLE_EVT_GATT_DISCONNECT_IND:
+ 117:.\BLEApplications.c **** 			/* Update deviceConnected flag*/
+ 118:.\BLEApplications.c **** 			deviceConnected = FALSE;
+ 119:.\BLEApplications.c **** 			
+ 120:.\BLEApplications.c **** 			/* Reset CapSense notification flag to prevent further notifications
+ 121:.\BLEApplications.c **** 			 * being sent to Central device after next connection. */
+ 122:.\BLEApplications.c **** 			sendCapSenseSliderNotifications = FALSE;
+ 123:.\BLEApplications.c **** 			
+ 124:.\BLEApplications.c **** 			/* Reset the color coordinates */
+ 125:.\BLEApplications.c **** 			RGBledData[RED_INDEX] = ZERO;
+ 126:.\BLEApplications.c ****             RGBledData[GREEN_INDEX] = ZERO;
+ 127:.\BLEApplications.c ****             RGBledData[BLUE_INDEX] = ZERO;
+ 128:.\BLEApplications.c ****             RGBledData[INTENSITY_INDEX] = ZERO;
+ 129:.\BLEApplications.c **** 			UpdateRGBled();
+ 130:.\BLEApplications.c **** 
+ 131:.\BLEApplications.c **** 			break;
+ 132:.\BLEApplications.c ****         
+ 133:.\BLEApplications.c ****             
+ 134:.\BLEApplications.c ****         case CYBLE_EVT_GATTS_WRITE_REQ: 							
+ 135:.\BLEApplications.c ****             /* This event is received when Central device sends a Write command 
+ 136:.\BLEApplications.c ****              * on an Attribute. 
+ 137:.\BLEApplications.c ****              * We first get the attribute handle from the event parameter and 
+ 138:.\BLEApplications.c ****              * then try to match that handle with an attribute in the database.
+ 139:.\BLEApplications.c ****              */
+ 140:.\BLEApplications.c ****             wrReqParam = (CYBLE_GATTS_WRITE_REQ_PARAM_T *) eventParam;
+ 141:.\BLEApplications.c ****             
+ 142:.\BLEApplications.c **** 
+ 143:.\BLEApplications.c ****             /* This condition checks whether the RGB LED characteristic was
+ 144:.\BLEApplications.c ****              * written to by matching the attribute handle.
+ 145:.\BLEApplications.c ****              * If the attribute handle matches, then the value written to the 
+ 146:.\BLEApplications.c ****              * attribute is extracted and used to drive RGB LED.
+ 147:.\BLEApplications.c ****              */
+ 148:.\BLEApplications.c ****             
+ 149:.\BLEApplications.c ****             /* Extract the attribute handle for the RGB LED characteristic 
+ 150:.\BLEApplications.c ****              * from the custom service data structure.
+ 151:.\BLEApplications.c ****              */
+ 152:.\BLEApplications.c ****              
+ 153:.\BLEApplications.c ****             /* if (attributeHandle == RGB LED Characteristic Handle) */
+ 154:.\BLEApplications.c ****             if(wrReqParam->handleValPair.attrHandle == cyBle_customs[RGB_LED_SERVICE_INDEX].\
+ 155:.\BLEApplications.c **** 								                        customServiceInfo[RGB_LED_CHAR_INDEX].\
+ 156:.\BLEApplications.c ****                                                         customServiceCharHandle)
+ 157:.\BLEApplications.c ****             {
+ 158:.\BLEApplications.c ****                 /* Extract the value of the attribute from the handle-value 
+ 159:.\BLEApplications.c ****                  * pair database. */
+ 160:.\BLEApplications.c ****                 RGBledData[RED_INDEX] = wrReqParam->handleValPair.value.val[RED_INDEX];
+ 161:.\BLEApplications.c ****                 RGBledData[GREEN_INDEX] = wrReqParam->handleValPair.value.val[GREEN_INDEX];
+ 162:.\BLEApplications.c ****                 RGBledData[BLUE_INDEX] = wrReqParam->handleValPair.value.val[BLUE_INDEX];
+ 163:.\BLEApplications.c ****                 RGBledData[INTENSITY_INDEX] = wrReqParam->handleValPair.value.val[INTENSITY_INDEX];
+ 164:.\BLEApplications.c ****                 
+ 165:.\BLEApplications.c ****                 /* Update the PrISM components and the attribute for RGB LED read 
+ 166:.\BLEApplications.c ****                  * characteristics */
+ 167:.\BLEApplications.c ****                 UpdateRGBled();
+ 168:.\BLEApplications.c ****             }
+ 169:.\BLEApplications.c **** 
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 5
+
+
+ 170:.\BLEApplications.c ****             
+ 171:.\BLEApplications.c ****             /* This condition checks whether the CCCD descriptor for CapSense
+ 172:.\BLEApplications.c ****              * slider characteristic has been written to. This tells us whether
+ 173:.\BLEApplications.c ****              * the notification for CapSense slider has been enabled/disabled.
+ 174:.\BLEApplications.c ****              */
+ 175:.\BLEApplications.c ****             
+ 176:.\BLEApplications.c ****             /* if (attributeHandle == CapSense Slider Characteristics Handle) */
+ 177:.\BLEApplications.c ****             if(wrReqParam->handleValPair.attrHandle == cyBle_customs[CAPSENSE_SERVICE_INDEX].
+ 178:.\BLEApplications.c **** 			            customServiceInfo[CAPSENSE_SLIDER_CHAR_INDEX].
+ 179:.\BLEApplications.c ****                         customServiceCharDescriptors[CAPSENSE_SLIDER_CCC_INDEX])
+ 180:.\BLEApplications.c ****             {
+ 181:.\BLEApplications.c ****                 sendCapSenseSliderNotifications = wrReqParam->handleValPair.value.val[CCC_DATA_INDE
+ 182:.\BLEApplications.c **** 				
+ 183:.\BLEApplications.c ****                 /* When the Client Characteristic Configuration descriptor (CCCD) is
+ 184:.\BLEApplications.c ****                 * written by the Central device for enabling/disabling notifications, 
+ 185:.\BLEApplications.c ****                 * then the same descriptor value has to be explicitly updated in 
+ 186:.\BLEApplications.c ****                 * application so that it reflects the correct value when the 
+ 187:.\BLEApplications.c ****                 * descriptor is read. 
+ 188:.\BLEApplications.c ****                 */
+ 189:.\BLEApplications.c ****                 {
+ 190:.\BLEApplications.c ****                     /* Write the present CapSense notification status to the local variable */
+ 191:.\BLEApplications.c ****             		CapSenseCCCDvalue[0] = sendCapSenseSliderNotifications;
+ 192:.\BLEApplications.c ****             		CapSenseCCCDvalue[1] = 0x00;
+ 193:.\BLEApplications.c ****             		
+ 194:.\BLEApplications.c ****             		/* Update CCCD handle with notification status data*/
+ 195:.\BLEApplications.c ****             		CapSenseNotificationCCCDhandle.attrHandle = CAPSENSE_CCC_HANDLE;
+ 196:.\BLEApplications.c ****             		CapSenseNotificationCCCDhandle.value.val = CapSenseCCCDvalue;
+ 197:.\BLEApplications.c ****             		CapSenseNotificationCCCDhandle.value.len = sizeof(CapSenseCCCDvalue);
+ 198:.\BLEApplications.c ****             		
+ 199:.\BLEApplications.c ****             		/* Report data to BLE component for sending data when read by Central device */
+ 200:.\BLEApplications.c ****             		CyBle_GattsWriteAttributeValue(&CapSenseNotificationCCCDhandle, ZERO, &cyBle_connHand
+ 201:.\BLEApplications.c ****                                                                                 CYBLE_GATT_DB_LOCAL
+ 202:.\BLEApplications.c ****                 }
+ 203:.\BLEApplications.c ****            }
+ 204:.\BLEApplications.c **** 
+ 205:.\BLEApplications.c **** 			
+ 206:.\BLEApplications.c **** 			/* Send the response to the write request received. */
+ 207:.\BLEApplications.c **** 			CyBle_GattsWriteRsp(cyBle_connHandle);
+ 208:.\BLEApplications.c **** 			
+ 209:.\BLEApplications.c **** 			break;
+ 210:.\BLEApplications.c **** 
+ 211:.\BLEApplications.c ****         default:
+ 212:.\BLEApplications.c **** 
+ 213:.\BLEApplications.c ****        	 	break;
+  60              		.loc 1 213 0
+  61 001a 83E0     		b	.L1
+  62              	.L4:
+  94:.\BLEApplications.c ****     {
+  63              		.loc 1 94 0
+  64 001c 422B     		cmp	r3, #66
+  65 001e 15D0     		beq	.L6
+  66 0020 4C2B     		cmp	r3, #76
+  67 0022 28D0     		beq	.L7
+  68 0024 412B     		cmp	r3, #65
+  69 0026 0DD0     		beq	.L8
+  70              		.loc 1 213 0
+  71 0028 7CE0     		b	.L1
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 6
+
+
+  72              	.L3:
+  99:.\BLEApplications.c **** 			break;
+  73              		.loc 1 99 0
+  74 002a 0020     		mov	r0, #0
+  75 002c FFF7FEFF 		bl	CyBle_GappStartAdvertisement
+ 100:.\BLEApplications.c **** 			
+  76              		.loc 1 100 0
+  77 0030 78E0     		b	.L1
+  78              	.L5:
+ 104:.\BLEApplications.c ****             {
+  79              		.loc 1 104 0
+  80 0032 3E4B     		ldr	r3, .L13
+  81 0034 1B78     		ldrb	r3, [r3]
+  82 0036 042B     		cmp	r3, #4
+  83 0038 03D1     		bne	.L10
+ 107:.\BLEApplications.c ****             }
+  84              		.loc 1 107 0
+  85 003a 0020     		mov	r0, #0
+  86 003c FFF7FEFF 		bl	CyBle_GappStartAdvertisement
+ 109:.\BLEApplications.c **** 			
+  87              		.loc 1 109 0
+  88 0040 70E0     		b	.L1
+  89              	.L10:
+  90 0042 6FE0     		b	.L1
+  91              	.L8:
+ 113:.\BLEApplications.c **** 			break;
+  92              		.loc 1 113 0
+  93 0044 3A4B     		ldr	r3, .L13+4
+  94 0046 0122     		mov	r2, #1
+  95 0048 1A70     		strb	r2, [r3]
+ 114:.\BLEApplications.c ****         
+  96              		.loc 1 114 0
+  97 004a 6BE0     		b	.L1
+  98              	.L6:
+ 118:.\BLEApplications.c **** 			
+  99              		.loc 1 118 0
+ 100 004c 384B     		ldr	r3, .L13+4
+ 101 004e 0022     		mov	r2, #0
+ 102 0050 1A70     		strb	r2, [r3]
+ 122:.\BLEApplications.c **** 			
+ 103              		.loc 1 122 0
+ 104 0052 384B     		ldr	r3, .L13+8
+ 105 0054 0022     		mov	r2, #0
+ 106 0056 1A70     		strb	r2, [r3]
+ 125:.\BLEApplications.c ****             RGBledData[GREEN_INDEX] = ZERO;
+ 107              		.loc 1 125 0
+ 108 0058 374B     		ldr	r3, .L13+12
+ 109 005a 0022     		mov	r2, #0
+ 110 005c 1A70     		strb	r2, [r3]
+ 126:.\BLEApplications.c ****             RGBledData[BLUE_INDEX] = ZERO;
+ 111              		.loc 1 126 0
+ 112 005e 364B     		ldr	r3, .L13+12
+ 113 0060 0022     		mov	r2, #0
+ 114 0062 5A70     		strb	r2, [r3, #1]
+ 127:.\BLEApplications.c ****             RGBledData[INTENSITY_INDEX] = ZERO;
+ 115              		.loc 1 127 0
+ 116 0064 344B     		ldr	r3, .L13+12
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 7
+
+
+ 117 0066 0022     		mov	r2, #0
+ 118 0068 9A70     		strb	r2, [r3, #2]
+ 128:.\BLEApplications.c **** 			UpdateRGBled();
+ 119              		.loc 1 128 0
+ 120 006a 334B     		ldr	r3, .L13+12
+ 121 006c 0022     		mov	r2, #0
+ 122 006e DA70     		strb	r2, [r3, #3]
+ 129:.\BLEApplications.c **** 
+ 123              		.loc 1 129 0
+ 124 0070 FFF7FEFF 		bl	UpdateRGBled
+ 131:.\BLEApplications.c ****         
+ 125              		.loc 1 131 0
+ 126 0074 56E0     		b	.L1
+ 127              	.L7:
+ 140:.\BLEApplications.c ****             
+ 128              		.loc 1 140 0
+ 129 0076 3B68     		ldr	r3, [r7]
+ 130 0078 FB61     		str	r3, [r7, #28]
+ 154:.\BLEApplications.c **** 								                        customServiceInfo[RGB_LED_CHAR_INDEX].\
+ 131              		.loc 1 154 0
+ 132 007a FB69     		ldr	r3, [r7, #28]
+ 133 007c 9A89     		ldrh	r2, [r3, #12]
+ 155:.\BLEApplications.c ****                                                         customServiceCharHandle)
+ 134              		.loc 1 155 0
+ 135 007e 2F4B     		ldr	r3, .L13+16
+ 136 0080 5B89     		ldrh	r3, [r3, #10]
+ 154:.\BLEApplications.c **** 								                        customServiceInfo[RGB_LED_CHAR_INDEX].\
+ 137              		.loc 1 154 0
+ 138 0082 9A42     		cmp	r2, r3
+ 139 0084 15D1     		bne	.L11
+ 160:.\BLEApplications.c ****                 RGBledData[GREEN_INDEX] = wrReqParam->handleValPair.value.val[GREEN_INDEX];
+ 140              		.loc 1 160 0
+ 141 0086 FB69     		ldr	r3, [r7, #28]
+ 142 0088 5B68     		ldr	r3, [r3, #4]
+ 143 008a 1A78     		ldrb	r2, [r3]
+ 144 008c 2A4B     		ldr	r3, .L13+12
+ 145 008e 1A70     		strb	r2, [r3]
+ 161:.\BLEApplications.c ****                 RGBledData[BLUE_INDEX] = wrReqParam->handleValPair.value.val[BLUE_INDEX];
+ 146              		.loc 1 161 0
+ 147 0090 FB69     		ldr	r3, [r7, #28]
+ 148 0092 5B68     		ldr	r3, [r3, #4]
+ 149 0094 5A78     		ldrb	r2, [r3, #1]
+ 150 0096 284B     		ldr	r3, .L13+12
+ 151 0098 5A70     		strb	r2, [r3, #1]
+ 162:.\BLEApplications.c ****                 RGBledData[INTENSITY_INDEX] = wrReqParam->handleValPair.value.val[INTENSITY_INDEX];
+ 152              		.loc 1 162 0
+ 153 009a FB69     		ldr	r3, [r7, #28]
+ 154 009c 5B68     		ldr	r3, [r3, #4]
+ 155 009e 9A78     		ldrb	r2, [r3, #2]
+ 156 00a0 254B     		ldr	r3, .L13+12
+ 157 00a2 9A70     		strb	r2, [r3, #2]
+ 163:.\BLEApplications.c ****                 
+ 158              		.loc 1 163 0
+ 159 00a4 FB69     		ldr	r3, [r7, #28]
+ 160 00a6 5B68     		ldr	r3, [r3, #4]
+ 161 00a8 DA78     		ldrb	r2, [r3, #3]
+ 162 00aa 234B     		ldr	r3, .L13+12
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 8
+
+
+ 163 00ac DA70     		strb	r2, [r3, #3]
+ 167:.\BLEApplications.c ****             }
+ 164              		.loc 1 167 0
+ 165 00ae FFF7FEFF 		bl	UpdateRGBled
+ 166              	.L11:
+ 177:.\BLEApplications.c **** 			            customServiceInfo[CAPSENSE_SLIDER_CHAR_INDEX].
+ 167              		.loc 1 177 0
+ 168 00b2 FB69     		ldr	r3, [r7, #28]
+ 169 00b4 9A89     		ldrh	r2, [r3, #12]
+ 179:.\BLEApplications.c ****             {
+ 170              		.loc 1 179 0
+ 171 00b6 214B     		ldr	r3, .L13+16
+ 172 00b8 9B88     		ldrh	r3, [r3, #4]
+ 177:.\BLEApplications.c **** 			            customServiceInfo[CAPSENSE_SLIDER_CHAR_INDEX].
+ 173              		.loc 1 177 0
+ 174 00ba 9A42     		cmp	r2, r3
+ 175 00bc 23D1     		bne	.L12
+ 181:.\BLEApplications.c **** 				
+ 176              		.loc 1 181 0
+ 177 00be FB69     		ldr	r3, [r7, #28]
+ 178 00c0 5B68     		ldr	r3, [r3, #4]
+ 179 00c2 1A78     		ldrb	r2, [r3]
+ 180 00c4 1B4B     		ldr	r3, .L13+8
+ 181 00c6 1A70     		strb	r2, [r3]
+ 191:.\BLEApplications.c ****             		CapSenseCCCDvalue[1] = 0x00;
+ 182              		.loc 1 191 0
+ 183 00c8 1A4B     		ldr	r3, .L13+8
+ 184 00ca 1A78     		ldrb	r2, [r3]
+ 185 00cc 1823     		mov	r3, #24
+ 186 00ce FB18     		add	r3, r7, r3
+ 187 00d0 1A70     		strb	r2, [r3]
+ 192:.\BLEApplications.c ****             		
+ 188              		.loc 1 192 0
+ 189 00d2 1823     		mov	r3, #24
+ 190 00d4 FB18     		add	r3, r7, r3
+ 191 00d6 0022     		mov	r2, #0
+ 192 00d8 5A70     		strb	r2, [r3, #1]
+ 195:.\BLEApplications.c ****             		CapSenseNotificationCCCDhandle.value.val = CapSenseCCCDvalue;
+ 193              		.loc 1 195 0
+ 194 00da 0C23     		mov	r3, #12
+ 195 00dc FB18     		add	r3, r7, r3
+ 196 00de 0F22     		mov	r2, #15
+ 197 00e0 1A81     		strh	r2, [r3, #8]
+ 196:.\BLEApplications.c ****             		CapSenseNotificationCCCDhandle.value.len = sizeof(CapSenseCCCDvalue);
+ 198              		.loc 1 196 0
+ 199 00e2 0C23     		mov	r3, #12
+ 200 00e4 FB18     		add	r3, r7, r3
+ 201 00e6 1822     		mov	r2, #24
+ 202 00e8 BA18     		add	r2, r7, r2
+ 203 00ea 1A60     		str	r2, [r3]
+ 197:.\BLEApplications.c ****             		
+ 204              		.loc 1 197 0
+ 205 00ec 0C23     		mov	r3, #12
+ 206 00ee FB18     		add	r3, r7, r3
+ 207 00f0 0222     		mov	r2, #2
+ 208 00f2 9A80     		strh	r2, [r3, #4]
+ 200:.\BLEApplications.c ****                                                                                 CYBLE_GATT_DB_LOCAL
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 9
+
+
+ 209              		.loc 1 200 0
+ 210 00f4 0C23     		mov	r3, #12
+ 211 00f6 FA18     		add	r2, r7, r3
+ 212 00f8 114B     		ldr	r3, .L13+20
+ 213 00fa 101C     		mov	r0, r2
+ 214 00fc 0021     		mov	r1, #0
+ 215 00fe 1A1C     		mov	r2, r3
+ 216 0100 0023     		mov	r3, #0
+ 217 0102 FFF7FEFF 		bl	CyBle_GattsWriteAttributeValue
+ 218              	.L12:
+ 207:.\BLEApplications.c **** 			
+ 219              		.loc 1 207 0
+ 220 0106 0E4B     		ldr	r3, .L13+20
+ 221 0108 1A78     		ldrb	r2, [r3]
+ 222 010a 5B78     		ldrb	r3, [r3, #1]
+ 223 010c 1B02     		lsl	r3, r3, #8
+ 224 010e 1A43     		orr	r2, r3
+ 225 0110 0023     		mov	r3, #0
+ 226 0112 1204     		lsl	r2, r2, #16
+ 227 0114 120C     		lsr	r2, r2, #16
+ 228 0116 1B0C     		lsr	r3, r3, #16
+ 229 0118 1B04     		lsl	r3, r3, #16
+ 230 011a 1343     		orr	r3, r2
+ 231 011c 181C     		mov	r0, r3
+ 232 011e FFF7FEFF 		bl	CyBle_GattsWriteRsp
+ 209:.\BLEApplications.c **** 
+ 233              		.loc 1 209 0
+ 234 0122 C046     		mov	r8, r8
+ 235              	.L1:
+ 214:.\BLEApplications.c ****     }
+ 215:.\BLEApplications.c **** }
+ 236              		.loc 1 215 0
+ 237 0124 BD46     		mov	sp, r7
+ 238 0126 08B0     		add	sp, sp, #32
+ 239              		@ sp needed
+ 240 0128 80BD     		pop	{r7, pc}
+ 241              	.L14:
+ 242 012a C046     		.align	2
+ 243              	.L13:
+ 244 012c 00000000 		.word	cyBle_state
+ 245 0130 00000000 		.word	deviceConnected
+ 246 0134 00000000 		.word	sendCapSenseSliderNotifications
+ 247 0138 00000000 		.word	RGBledData
+ 248 013c 00000000 		.word	cyBle_customs
+ 249 0140 00000000 		.word	cyBle_connHandle
+ 250              		.cfi_endproc
+ 251              	.LFE35:
+ 252              		.size	CustomEventHandler, .-CustomEventHandler
+ 253              		.section	.text.SendCapSenseNotification,"ax",%progbits
+ 254              		.align	2
+ 255              		.global	SendCapSenseNotification
+ 256              		.code	16
+ 257              		.thumb_func
+ 258              		.type	SendCapSenseNotification, %function
+ 259              	SendCapSenseNotification:
+ 260              	.LFB36:
+ 216:.\BLEApplications.c **** 
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 10
+
+
+ 217:.\BLEApplications.c **** 
+ 218:.\BLEApplications.c **** /*******************************************************************************
+ 219:.\BLEApplications.c **** * Function Name: SendCapSenseNotification
+ 220:.\BLEApplications.c **** ********************************************************************************
+ 221:.\BLEApplications.c **** * Summary:
+ 222:.\BLEApplications.c **** * Send CapSense Slider data as BLE Notifications. This function updates
+ 223:.\BLEApplications.c **** * the notification handle with data and triggers the BLE component to send 
+ 224:.\BLEApplications.c **** * notification
+ 225:.\BLEApplications.c **** *
+ 226:.\BLEApplications.c **** * Parameters:
+ 227:.\BLEApplications.c **** *  CapSenseSliderData:	CapSense slider value	
+ 228:.\BLEApplications.c **** *
+ 229:.\BLEApplications.c **** * Return:
+ 230:.\BLEApplications.c **** *  void
+ 231:.\BLEApplications.c **** *
+ 232:.\BLEApplications.c **** *******************************************************************************/
+ 233:.\BLEApplications.c **** void SendCapSenseNotification(uint8 CapSenseSliderData)
+ 234:.\BLEApplications.c **** {
+ 261              		.loc 1 234 0
+ 262              		.cfi_startproc
+ 263 0000 80B5     		push	{r7, lr}
+ 264              		.cfi_def_cfa_offset 8
+ 265              		.cfi_offset 7, -8
+ 266              		.cfi_offset 14, -4
+ 267 0002 86B0     		sub	sp, sp, #24
+ 268              		.cfi_def_cfa_offset 32
+ 269 0004 00AF     		add	r7, sp, #0
+ 270              		.cfi_def_cfa_register 7
+ 271 0006 021C     		mov	r2, r0
+ 272 0008 FB1D     		add	r3, r7, #7
+ 273 000a 1A70     		strb	r2, [r3]
+ 235:.\BLEApplications.c **** 	/* 'CapSensenotificationHandle' stores CapSense notification data parameters */
+ 236:.\BLEApplications.c **** 	CYBLE_GATTS_HANDLE_VALUE_NTF_T		CapSensenotificationHandle;	
+ 237:.\BLEApplications.c **** 	
+ 238:.\BLEApplications.c **** 	/* Update notification handle with CapSense slider data*/
+ 239:.\BLEApplications.c **** 	CapSensenotificationHandle.attrHandle = CYBLE_CAPSENSE_SERVICE_CAPSENSE_SLIDER_CHARACTERISTIC_CHAR
+ 274              		.loc 1 239 0
+ 275 000c 0C23     		mov	r3, #12
+ 276 000e FB18     		add	r3, r7, r3
+ 277 0010 0E22     		mov	r2, #14
+ 278 0012 1A81     		strh	r2, [r3, #8]
+ 240:.\BLEApplications.c **** 	CapSensenotificationHandle.value.val = &CapSenseSliderData;
+ 279              		.loc 1 240 0
+ 280 0014 0C23     		mov	r3, #12
+ 281 0016 FB18     		add	r3, r7, r3
+ 282 0018 FA1D     		add	r2, r7, #7
+ 283 001a 1A60     		str	r2, [r3]
+ 241:.\BLEApplications.c **** 	CapSensenotificationHandle.value.len = sizeof(CapSenseSliderData);
+ 284              		.loc 1 241 0
+ 285 001c 0C23     		mov	r3, #12
+ 286 001e FB18     		add	r3, r7, r3
+ 287 0020 0122     		mov	r2, #1
+ 288 0022 9A80     		strh	r2, [r3, #4]
+ 242:.\BLEApplications.c **** 	
+ 243:.\BLEApplications.c **** 	/* Send notifications. */
+ 244:.\BLEApplications.c **** 	CyBle_GattsNotification(cyBle_connHandle, &CapSensenotificationHandle);
+ 289              		.loc 1 244 0
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 11
+
+
+ 290 0024 094B     		ldr	r3, .L16
+ 291 0026 0C22     		mov	r2, #12
+ 292 0028 B918     		add	r1, r7, r2
+ 293 002a 1A78     		ldrb	r2, [r3]
+ 294 002c 5B78     		ldrb	r3, [r3, #1]
+ 295 002e 1B02     		lsl	r3, r3, #8
+ 296 0030 1A43     		orr	r2, r3
+ 297 0032 0023     		mov	r3, #0
+ 298 0034 1204     		lsl	r2, r2, #16
+ 299 0036 120C     		lsr	r2, r2, #16
+ 300 0038 1B0C     		lsr	r3, r3, #16
+ 301 003a 1B04     		lsl	r3, r3, #16
+ 302 003c 1343     		orr	r3, r2
+ 303 003e 181C     		mov	r0, r3
+ 304 0040 FFF7FEFF 		bl	CyBle_GattsNotification
+ 245:.\BLEApplications.c **** }
+ 305              		.loc 1 245 0
+ 306 0044 BD46     		mov	sp, r7
+ 307 0046 06B0     		add	sp, sp, #24
+ 308              		@ sp needed
+ 309 0048 80BD     		pop	{r7, pc}
+ 310              	.L17:
+ 311 004a C046     		.align	2
+ 312              	.L16:
+ 313 004c 00000000 		.word	cyBle_connHandle
+ 314              		.cfi_endproc
+ 315              	.LFE36:
+ 316              		.size	SendCapSenseNotification, .-SendCapSenseNotification
+ 317              		.global	__aeabi_idiv
+ 318              		.section	.text.UpdateRGBled,"ax",%progbits
+ 319              		.align	2
+ 320              		.global	UpdateRGBled
+ 321              		.code	16
+ 322              		.thumb_func
+ 323              		.type	UpdateRGBled, %function
+ 324              	UpdateRGBled:
+ 325              	.LFB37:
+ 246:.\BLEApplications.c **** 
+ 247:.\BLEApplications.c **** 
+ 248:.\BLEApplications.c **** /*******************************************************************************
+ 249:.\BLEApplications.c **** * Function Name: UpdateRGBled
+ 250:.\BLEApplications.c **** ********************************************************************************
+ 251:.\BLEApplications.c **** * Summary:
+ 252:.\BLEApplications.c **** * Receive the new RGB data and modify PrISM parameters. Also, update the
+ 253:.\BLEApplications.c **** * read characteristic handle so that the next read from the BLE central device
+ 254:.\BLEApplications.c **** * gives present RGB color and intensity data.
+ 255:.\BLEApplications.c **** *
+ 256:.\BLEApplications.c **** * Parameters:
+ 257:.\BLEApplications.c **** *  void
+ 258:.\BLEApplications.c **** *
+ 259:.\BLEApplications.c **** * Return:
+ 260:.\BLEApplications.c **** *  void
+ 261:.\BLEApplications.c **** *
+ 262:.\BLEApplications.c **** *******************************************************************************/
+ 263:.\BLEApplications.c **** void UpdateRGBled(void)
+ 264:.\BLEApplications.c **** {
+ 326              		.loc 1 264 0
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 12
+
+
+ 327              		.cfi_startproc
+ 328 0000 80B5     		push	{r7, lr}
+ 329              		.cfi_def_cfa_offset 8
+ 330              		.cfi_offset 7, -8
+ 331              		.cfi_offset 14, -4
+ 332 0002 82B0     		sub	sp, sp, #8
+ 333              		.cfi_def_cfa_offset 16
+ 334 0004 00AF     		add	r7, sp, #0
+ 335              		.cfi_def_cfa_register 7
+ 265:.\BLEApplications.c **** 	/* Local variables to calculate the color components from RGB received data*/
+ 266:.\BLEApplications.c **** 	uint8 debug_red;
+ 267:.\BLEApplications.c **** 	uint8 debug_green;
+ 268:.\BLEApplications.c **** 	uint8 debug_blue;
+ 269:.\BLEApplications.c **** 	uint8 intensity_divide_value = RGBledData[INTENSITY_INDEX];
+ 336              		.loc 1 269 0
+ 337 0006 FB1D     		add	r3, r7, #7
+ 338 0008 2C4A     		ldr	r2, .L19
+ 339 000a D278     		ldrb	r2, [r2, #3]
+ 340 000c 1A70     		strb	r2, [r3]
+ 270:.\BLEApplications.c **** 	
+ 271:.\BLEApplications.c **** 	debug_red = (uint8)(((uint16)RGBledData[RED_INDEX] * intensity_divide_value) / 255);
+ 341              		.loc 1 271 0
+ 342 000e 2B4B     		ldr	r3, .L19
+ 343 0010 1B78     		ldrb	r3, [r3]
+ 344 0012 1A1C     		mov	r2, r3
+ 345 0014 FB1D     		add	r3, r7, #7
+ 346 0016 1B78     		ldrb	r3, [r3]
+ 347 0018 5343     		mul	r3, r2
+ 348 001a 181C     		mov	r0, r3
+ 349 001c FF21     		mov	r1, #255
+ 350 001e FFF7FEFF 		bl	__aeabi_idiv
+ 351 0022 031C     		mov	r3, r0
+ 352 0024 1A1C     		mov	r2, r3
+ 353 0026 BB1D     		add	r3, r7, #6
+ 354 0028 1A70     		strb	r2, [r3]
+ 272:.\BLEApplications.c **** 	debug_green = (uint8)(((uint16)RGBledData[GREEN_INDEX] * intensity_divide_value) / 255);
+ 355              		.loc 1 272 0
+ 356 002a 244B     		ldr	r3, .L19
+ 357 002c 5B78     		ldrb	r3, [r3, #1]
+ 358 002e 1A1C     		mov	r2, r3
+ 359 0030 FB1D     		add	r3, r7, #7
+ 360 0032 1B78     		ldrb	r3, [r3]
+ 361 0034 5343     		mul	r3, r2
+ 362 0036 181C     		mov	r0, r3
+ 363 0038 FF21     		mov	r1, #255
+ 364 003a FFF7FEFF 		bl	__aeabi_idiv
+ 365 003e 031C     		mov	r3, r0
+ 366 0040 1A1C     		mov	r2, r3
+ 367 0042 7B1D     		add	r3, r7, #5
+ 368 0044 1A70     		strb	r2, [r3]
+ 273:.\BLEApplications.c **** 	debug_blue = (uint8)(((uint16)RGBledData[BLUE_INDEX] * intensity_divide_value) / 255);
+ 369              		.loc 1 273 0
+ 370 0046 1D4B     		ldr	r3, .L19
+ 371 0048 9B78     		ldrb	r3, [r3, #2]
+ 372 004a 1A1C     		mov	r2, r3
+ 373 004c FB1D     		add	r3, r7, #7
+ 374 004e 1B78     		ldrb	r3, [r3]
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 13
+
+
+ 375 0050 5343     		mul	r3, r2
+ 376 0052 181C     		mov	r0, r3
+ 377 0054 FF21     		mov	r1, #255
+ 378 0056 FFF7FEFF 		bl	__aeabi_idiv
+ 379 005a 031C     		mov	r3, r0
+ 380 005c 1A1C     		mov	r2, r3
+ 381 005e 3B1D     		add	r3, r7, #4
+ 382 0060 1A70     		strb	r2, [r3]
+ 274:.\BLEApplications.c **** 	
+ 275:.\BLEApplications.c **** 	/* Update the density value of the PrISM module for color control*/
+ 276:.\BLEApplications.c **** 	PRS_1_WritePulse0(RGB_LED_MAX_VAL - debug_red);
+ 383              		.loc 1 276 0
+ 384 0062 BB1D     		add	r3, r7, #6
+ 385 0064 1B78     		ldrb	r3, [r3]
+ 386 0066 DB43     		mvn	r3, r3
+ 387 0068 DBB2     		uxtb	r3, r3
+ 388 006a 181C     		mov	r0, r3
+ 389 006c FFF7FEFF 		bl	PRS_1_WritePulse0
+ 277:.\BLEApplications.c ****     PRS_1_WritePulse1(RGB_LED_MAX_VAL - debug_green);
+ 390              		.loc 1 277 0
+ 391 0070 7B1D     		add	r3, r7, #5
+ 392 0072 1B78     		ldrb	r3, [r3]
+ 393 0074 DB43     		mvn	r3, r3
+ 394 0076 DBB2     		uxtb	r3, r3
+ 395 0078 181C     		mov	r0, r3
+ 396 007a FFF7FEFF 		bl	PRS_1_WritePulse1
+ 278:.\BLEApplications.c ****     PRS_2_WritePulse0(RGB_LED_MAX_VAL - debug_blue);
+ 397              		.loc 1 278 0
+ 398 007e 3B1D     		add	r3, r7, #4
+ 399 0080 1B78     		ldrb	r3, [r3]
+ 400 0082 DB43     		mvn	r3, r3
+ 401 0084 DBB2     		uxtb	r3, r3
+ 402 0086 181C     		mov	r0, r3
+ 403 0088 FFF7FEFF 		bl	PRS_2_WritePulse0
+ 279:.\BLEApplications.c **** 	
+ 280:.\BLEApplications.c **** 	/* Update RGB control handle with new values */
+ 281:.\BLEApplications.c **** 	rgbHandle.attrHandle = RGB_LED_CHAR_HANDLE;
+ 404              		.loc 1 281 0
+ 405 008c 0C4B     		ldr	r3, .L19+4
+ 406 008e 1322     		mov	r2, #19
+ 407 0090 1A81     		strh	r2, [r3, #8]
+ 282:.\BLEApplications.c **** 	rgbHandle.value.val = RGBledData;
+ 408              		.loc 1 282 0
+ 409 0092 0B4B     		ldr	r3, .L19+4
+ 410 0094 094A     		ldr	r2, .L19
+ 411 0096 1A60     		str	r2, [r3]
+ 283:.\BLEApplications.c **** 	rgbHandle.value.len = sizeof(RGBledData);
+ 412              		.loc 1 283 0
+ 413 0098 094B     		ldr	r3, .L19+4
+ 414 009a 0422     		mov	r2, #4
+ 415 009c 9A80     		strh	r2, [r3, #4]
+ 284:.\BLEApplications.c **** 	rgbHandle.value.actualLen = sizeof(RGBledData);
+ 416              		.loc 1 284 0
+ 417 009e 084B     		ldr	r3, .L19+4
+ 418 00a0 0422     		mov	r2, #4
+ 419 00a2 DA80     		strh	r2, [r3, #6]
+ 285:.\BLEApplications.c **** 	
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 14
+
+
+ 286:.\BLEApplications.c **** 	/* Send updated RGB control handle as attribute for read by central device */
+ 287:.\BLEApplications.c **** 	CyBle_GattsWriteAttributeValue(&rgbHandle, FALSE, &cyBle_connHandle, FALSE);  
+ 420              		.loc 1 287 0
+ 421 00a4 064A     		ldr	r2, .L19+4
+ 422 00a6 074B     		ldr	r3, .L19+8
+ 423 00a8 101C     		mov	r0, r2
+ 424 00aa 0021     		mov	r1, #0
+ 425 00ac 1A1C     		mov	r2, r3
+ 426 00ae 0023     		mov	r3, #0
+ 427 00b0 FFF7FEFF 		bl	CyBle_GattsWriteAttributeValue
+ 288:.\BLEApplications.c **** }
+ 428              		.loc 1 288 0
+ 429 00b4 BD46     		mov	sp, r7
+ 430 00b6 02B0     		add	sp, sp, #8
+ 431              		@ sp needed
+ 432 00b8 80BD     		pop	{r7, pc}
+ 433              	.L20:
+ 434 00ba C046     		.align	2
+ 435              	.L19:
+ 436 00bc 00000000 		.word	RGBledData
+ 437 00c0 00000000 		.word	rgbHandle
+ 438 00c4 00000000 		.word	cyBle_connHandle
+ 439              		.cfi_endproc
+ 440              	.LFE37:
+ 441              		.size	UpdateRGBled, .-UpdateRGBled
+ 442              		.text
+ 443              	.Letext0:
+ 444              		.file 2 "Generated_Source\\PSoC4/cytypes.h"
+ 445              		.file 3 "Generated_Source\\PSoC4/BLE_1_StackGatt.h"
+ 446              		.file 4 "Generated_Source\\PSoC4/BLE_1_StackGattServer.h"
+ 447              		.file 5 "Generated_Source\\PSoC4/BLE_1_custom.h"
+ 448              		.file 6 "Generated_Source\\PSoC4/BLE_1_Stack.h"
+ 449              		.file 7 "Generated_Source\\PSoC4/BLE_1_eventHandler.h"
+ 450              		.section	.debug_info,"",%progbits
+ 451              	.Ldebug_info0:
+ 452 0000 41050000 		.4byte	0x541
+ 453 0004 0400     		.2byte	0x4
+ 454 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 455 000a 04       		.byte	0x4
+ 456 000b 01       		.uleb128 0x1
+ 457 000c 47070000 		.4byte	.LASF119
+ 458 0010 01       		.byte	0x1
+ 459 0011 790B0000 		.4byte	.LASF120
+ 460 0015 F6010000 		.4byte	.LASF121
+ 461 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 462 001d 00000000 		.4byte	0
+ 463 0021 00000000 		.4byte	.Ldebug_line0
+ 464 0025 02       		.uleb128 0x2
+ 465 0026 01       		.byte	0x1
+ 466 0027 06       		.byte	0x6
+ 467 0028 D9050000 		.4byte	.LASF0
+ 468 002c 02       		.uleb128 0x2
+ 469 002d 01       		.byte	0x1
+ 470 002e 08       		.byte	0x8
+ 471 002f 54050000 		.4byte	.LASF1
+ 472 0033 02       		.uleb128 0x2
+ 473 0034 02       		.byte	0x2
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 15
+
+
+ 474 0035 05       		.byte	0x5
+ 475 0036 D3000000 		.4byte	.LASF2
+ 476 003a 02       		.uleb128 0x2
+ 477 003b 02       		.byte	0x2
+ 478 003c 07       		.byte	0x7
+ 479 003d F1070000 		.4byte	.LASF3
+ 480 0041 02       		.uleb128 0x2
+ 481 0042 04       		.byte	0x4
+ 482 0043 05       		.byte	0x5
+ 483 0044 BF030000 		.4byte	.LASF4
+ 484 0048 02       		.uleb128 0x2
+ 485 0049 04       		.byte	0x4
+ 486 004a 07       		.byte	0x7
+ 487 004b 8B060000 		.4byte	.LASF5
+ 488 004f 02       		.uleb128 0x2
+ 489 0050 08       		.byte	0x8
+ 490 0051 05       		.byte	0x5
+ 491 0052 66030000 		.4byte	.LASF6
+ 492 0056 02       		.uleb128 0x2
+ 493 0057 08       		.byte	0x8
+ 494 0058 07       		.byte	0x7
+ 495 0059 74030000 		.4byte	.LASF7
+ 496 005d 03       		.uleb128 0x3
+ 497 005e 04       		.byte	0x4
+ 498 005f 05       		.byte	0x5
+ 499 0060 696E7400 		.ascii	"int\000"
+ 500 0064 02       		.uleb128 0x2
+ 501 0065 04       		.byte	0x4
+ 502 0066 07       		.byte	0x7
+ 503 0067 42060000 		.4byte	.LASF8
+ 504 006b 04       		.uleb128 0x4
+ 505 006c 28050000 		.4byte	.LASF9
+ 506 0070 02       		.byte	0x2
+ 507 0071 B3       		.byte	0xb3
+ 508 0072 2C000000 		.4byte	0x2c
+ 509 0076 04       		.uleb128 0x4
+ 510 0077 EF010000 		.4byte	.LASF10
+ 511 007b 02       		.byte	0x2
+ 512 007c B4       		.byte	0xb4
+ 513 007d 3A000000 		.4byte	0x3a
+ 514 0081 04       		.uleb128 0x4
+ 515 0082 B2080000 		.4byte	.LASF11
+ 516 0086 02       		.byte	0x2
+ 517 0087 B5       		.byte	0xb5
+ 518 0088 48000000 		.4byte	0x48
+ 519 008c 02       		.uleb128 0x2
+ 520 008d 04       		.byte	0x4
+ 521 008e 04       		.byte	0x4
+ 522 008f 14030000 		.4byte	.LASF12
+ 523 0093 02       		.uleb128 0x2
+ 524 0094 08       		.byte	0x8
+ 525 0095 04       		.byte	0x4
+ 526 0096 05090000 		.4byte	.LASF13
+ 527 009a 02       		.uleb128 0x2
+ 528 009b 01       		.byte	0x1
+ 529 009c 08       		.byte	0x8
+ 530 009d 2F070000 		.4byte	.LASF14
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 16
+
+
+ 531 00a1 02       		.uleb128 0x2
+ 532 00a2 04       		.byte	0x4
+ 533 00a3 07       		.byte	0x7
+ 534 00a4 15010000 		.4byte	.LASF15
+ 535 00a8 05       		.uleb128 0x5
+ 536 00a9 04       		.byte	0x4
+ 537 00aa 06       		.uleb128 0x6
+ 538 00ab 01       		.byte	0x1
+ 539 00ac 06       		.byte	0x6
+ 540 00ad 7A       		.byte	0x7a
+ 541 00ae 2F020000 		.4byte	0x22f
+ 542 00b2 07       		.uleb128 0x7
+ 543 00b3 89020000 		.4byte	.LASF16
+ 544 00b7 00       		.sleb128 0
+ 545 00b8 07       		.uleb128 0x7
+ 546 00b9 9D010000 		.4byte	.LASF17
+ 547 00bd 01       		.sleb128 1
+ 548 00be 07       		.uleb128 0x7
+ 549 00bf 5B0A0000 		.4byte	.LASF18
+ 550 00c3 02       		.sleb128 2
+ 551 00c4 07       		.uleb128 0x7
+ 552 00c5 77090000 		.4byte	.LASF19
+ 553 00c9 03       		.sleb128 3
+ 554 00ca 07       		.uleb128 0x7
+ 555 00cb 67010000 		.4byte	.LASF20
+ 556 00cf 04       		.sleb128 4
+ 557 00d0 07       		.uleb128 0x7
+ 558 00d1 70040000 		.4byte	.LASF21
+ 559 00d5 05       		.sleb128 5
+ 560 00d6 07       		.uleb128 0x7
+ 561 00d7 CA090000 		.4byte	.LASF22
+ 562 00db 20       		.sleb128 32
+ 563 00dc 07       		.uleb128 0x7
+ 564 00dd 9D060000 		.4byte	.LASF23
+ 565 00e1 21       		.sleb128 33
+ 566 00e2 07       		.uleb128 0x7
+ 567 00e3 0D000000 		.4byte	.LASF24
+ 568 00e7 22       		.sleb128 34
+ 569 00e8 07       		.uleb128 0x7
+ 570 00e9 BC040000 		.4byte	.LASF25
+ 571 00ed 23       		.sleb128 35
+ 572 00ee 07       		.uleb128 0x7
+ 573 00ef 26060000 		.4byte	.LASF26
+ 574 00f3 24       		.sleb128 36
+ 575 00f4 07       		.uleb128 0x7
+ 576 00f5 DD000000 		.4byte	.LASF27
+ 577 00f9 25       		.sleb128 37
+ 578 00fa 07       		.uleb128 0x7
+ 579 00fb 27040000 		.4byte	.LASF28
+ 580 00ff 26       		.sleb128 38
+ 581 0100 07       		.uleb128 0x7
+ 582 0101 FC030000 		.4byte	.LASF29
+ 583 0105 27       		.sleb128 39
+ 584 0106 07       		.uleb128 0x7
+ 585 0107 A1000000 		.4byte	.LASF30
+ 586 010b 28       		.sleb128 40
+ 587 010c 07       		.uleb128 0x7
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 17
+
+
+ 588 010d E3060000 		.4byte	.LASF31
+ 589 0111 29       		.sleb128 41
+ 590 0112 07       		.uleb128 0x7
+ 591 0113 78000000 		.4byte	.LASF32
+ 592 0117 2A       		.sleb128 42
+ 593 0118 07       		.uleb128 0x7
+ 594 0119 910A0000 		.4byte	.LASF33
+ 595 011d 2B       		.sleb128 43
+ 596 011e 07       		.uleb128 0x7
+ 597 011f 00070000 		.4byte	.LASF34
+ 598 0123 2C       		.sleb128 44
+ 599 0124 07       		.uleb128 0x7
+ 600 0125 47010000 		.4byte	.LASF35
+ 601 0129 C000     		.sleb128 64
+ 602 012b 07       		.uleb128 0x7
+ 603 012c 70060000 		.4byte	.LASF36
+ 604 0130 C100     		.sleb128 65
+ 605 0132 07       		.uleb128 0x7
+ 606 0133 F7000000 		.4byte	.LASF37
+ 607 0137 C200     		.sleb128 66
+ 608 0139 07       		.uleb128 0x7
+ 609 013a C6010000 		.4byte	.LASF38
+ 610 013e C300     		.sleb128 67
+ 611 0140 07       		.uleb128 0x7
+ 612 0141 3D0A0000 		.4byte	.LASF39
+ 613 0145 C400     		.sleb128 68
+ 614 0147 07       		.uleb128 0x7
+ 615 0148 F8090000 		.4byte	.LASF40
+ 616 014c C500     		.sleb128 69
+ 617 014e 07       		.uleb128 0x7
+ 618 014f 7C010000 		.4byte	.LASF41
+ 619 0153 C600     		.sleb128 70
+ 620 0155 07       		.uleb128 0x7
+ 621 0156 BB050000 		.4byte	.LASF42
+ 622 015a C700     		.sleb128 71
+ 623 015c 07       		.uleb128 0x7
+ 624 015d FF050000 		.4byte	.LASF43
+ 625 0161 C800     		.sleb128 72
+ 626 0163 07       		.uleb128 0x7
+ 627 0164 33030000 		.4byte	.LASF44
+ 628 0168 C900     		.sleb128 73
+ 629 016a 07       		.uleb128 0x7
+ 630 016b 5D080000 		.4byte	.LASF45
+ 631 016f CA00     		.sleb128 74
+ 632 0171 07       		.uleb128 0x7
+ 633 0172 4B020000 		.4byte	.LASF46
+ 634 0176 CB00     		.sleb128 75
+ 635 0178 07       		.uleb128 0x7
+ 636 0179 E5050000 		.4byte	.LASF47
+ 637 017d CC00     		.sleb128 76
+ 638 017f 07       		.uleb128 0x7
+ 639 0180 4C030000 		.4byte	.LASF48
+ 640 0184 CD00     		.sleb128 77
+ 641 0186 07       		.uleb128 0x7
+ 642 0187 1F0A0000 		.4byte	.LASF49
+ 643 018b CE00     		.sleb128 78
+ 644 018d 07       		.uleb128 0x7
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 18
+
+
+ 645 018e 71050000 		.4byte	.LASF50
+ 646 0192 CF00     		.sleb128 79
+ 647 0194 07       		.uleb128 0x7
+ 648 0195 010B0000 		.4byte	.LASF51
+ 649 0199 D000     		.sleb128 80
+ 650 019b 07       		.uleb128 0x7
+ 651 019c 93080000 		.4byte	.LASF52
+ 652 01a0 D100     		.sleb128 81
+ 653 01a2 07       		.uleb128 0x7
+ 654 01a3 4F040000 		.4byte	.LASF53
+ 655 01a7 D200     		.sleb128 82
+ 656 01a9 07       		.uleb128 0x7
+ 657 01aa C8030000 		.4byte	.LASF54
+ 658 01ae D300     		.sleb128 83
+ 659 01b0 07       		.uleb128 0x7
+ 660 01b1 4F060000 		.4byte	.LASF55
+ 661 01b5 D400     		.sleb128 84
+ 662 01b7 07       		.uleb128 0x7
+ 663 01b8 550B0000 		.4byte	.LASF56
+ 664 01bc D500     		.sleb128 85
+ 665 01be 07       		.uleb128 0x7
+ 666 01bf D90A0000 		.4byte	.LASF57
+ 667 01c3 D600     		.sleb128 86
+ 668 01c5 07       		.uleb128 0x7
+ 669 01c6 B00A0000 		.4byte	.LASF58
+ 670 01ca D700     		.sleb128 87
+ 671 01cc 07       		.uleb128 0x7
+ 672 01cd 2E050000 		.4byte	.LASF59
+ 673 01d1 F000     		.sleb128 112
+ 674 01d3 07       		.uleb128 0x7
+ 675 01d4 A4090000 		.4byte	.LASF60
+ 676 01d8 F100     		.sleb128 113
+ 677 01da 07       		.uleb128 0x7
+ 678 01db D5070000 		.4byte	.LASF61
+ 679 01df F200     		.sleb128 114
+ 680 01e1 07       		.uleb128 0x7
+ 681 01e2 B1020000 		.4byte	.LASF62
+ 682 01e6 F300     		.sleb128 115
+ 683 01e8 07       		.uleb128 0x7
+ 684 01e9 FC040000 		.4byte	.LASF63
+ 685 01ed F400     		.sleb128 116
+ 686 01ef 07       		.uleb128 0x7
+ 687 01f0 C2060000 		.4byte	.LASF64
+ 688 01f4 F500     		.sleb128 117
+ 689 01f6 07       		.uleb128 0x7
+ 690 01f7 CF020000 		.4byte	.LASF65
+ 691 01fb F600     		.sleb128 118
+ 692 01fd 07       		.uleb128 0x7
+ 693 01fe 3E080000 		.4byte	.LASF66
+ 694 0202 F700     		.sleb128 119
+ 695 0204 07       		.uleb128 0x7
+ 696 0205 D7080000 		.4byte	.LASF67
+ 697 0209 F800     		.sleb128 120
+ 698 020b 07       		.uleb128 0x7
+ 699 020c 3F090000 		.4byte	.LASF68
+ 700 0210 F900     		.sleb128 121
+ 701 0212 07       		.uleb128 0x7
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 19
+
+
+ 702 0213 6D0A0000 		.4byte	.LASF69
+ 703 0217 FA00     		.sleb128 122
+ 704 0219 07       		.uleb128 0x7
+ 705 021a B9080000 		.4byte	.LASF70
+ 706 021e FA01     		.sleb128 250
+ 707 0220 07       		.uleb128 0x7
+ 708 0221 9C050000 		.4byte	.LASF71
+ 709 0225 FB01     		.sleb128 251
+ 710 0227 07       		.uleb128 0x7
+ 711 0228 1A050000 		.4byte	.LASF72
+ 712 022c FF01     		.sleb128 255
+ 713 022e 00       		.byte	0
+ 714 022f 08       		.uleb128 0x8
+ 715 0230 04       		.byte	0x4
+ 716 0231 6B000000 		.4byte	0x6b
+ 717 0235 09       		.uleb128 0x9
+ 718 0236 200B0000 		.4byte	.LASF73
+ 719 023a 03       		.byte	0x3
+ 720 023b 6201     		.2byte	0x162
+ 721 023d 76000000 		.4byte	0x76
+ 722 0241 0A       		.uleb128 0xa
+ 723 0242 02       		.byte	0x2
+ 724 0243 03       		.byte	0x3
+ 725 0244 6501     		.2byte	0x165
+ 726 0246 65020000 		.4byte	0x265
+ 727 024a 0B       		.uleb128 0xb
+ 728 024b 0B030000 		.4byte	.LASF74
+ 729 024f 03       		.byte	0x3
+ 730 0250 6C01     		.2byte	0x16c
+ 731 0252 6B000000 		.4byte	0x6b
+ 732 0256 00       		.byte	0
+ 733 0257 0B       		.uleb128 0xb
+ 734 0258 32020000 		.4byte	.LASF75
+ 735 025c 03       		.byte	0x3
+ 736 025d 7201     		.2byte	0x172
+ 737 025f 6B000000 		.4byte	0x6b
+ 738 0263 01       		.byte	0x1
+ 739 0264 00       		.byte	0
+ 740 0265 09       		.uleb128 0x9
+ 741 0266 0C090000 		.4byte	.LASF76
+ 742 026a 03       		.byte	0x3
+ 743 026b 7401     		.2byte	0x174
+ 744 026d 41020000 		.4byte	0x241
+ 745 0271 0A       		.uleb128 0xa
+ 746 0272 08       		.byte	0x8
+ 747 0273 03       		.byte	0x3
+ 748 0274 8901     		.2byte	0x189
+ 749 0276 A2020000 		.4byte	0x2a2
+ 750 027a 0C       		.uleb128 0xc
+ 751 027b 76616C00 		.ascii	"val\000"
+ 752 027f 03       		.byte	0x3
+ 753 0280 8C01     		.2byte	0x18c
+ 754 0282 2F020000 		.4byte	0x22f
+ 755 0286 00       		.byte	0
+ 756 0287 0C       		.uleb128 0xc
+ 757 0288 6C656E00 		.ascii	"len\000"
+ 758 028c 03       		.byte	0x3
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 20
+
+
+ 759 028d 8F01     		.2byte	0x18f
+ 760 028f 76000000 		.4byte	0x76
+ 761 0293 04       		.byte	0x4
+ 762 0294 0B       		.uleb128 0xb
+ 763 0295 EE090000 		.4byte	.LASF77
+ 764 0299 03       		.byte	0x3
+ 765 029a 9601     		.2byte	0x196
+ 766 029c 76000000 		.4byte	0x76
+ 767 02a0 06       		.byte	0x6
+ 768 02a1 00       		.byte	0
+ 769 02a2 09       		.uleb128 0x9
+ 770 02a3 34070000 		.4byte	.LASF78
+ 771 02a7 03       		.byte	0x3
+ 772 02a8 9801     		.2byte	0x198
+ 773 02aa 71020000 		.4byte	0x271
+ 774 02ae 0A       		.uleb128 0xa
+ 775 02af 0C       		.byte	0xc
+ 776 02b0 03       		.byte	0x3
+ 777 02b1 9B01     		.2byte	0x19b
+ 778 02b3 D2020000 		.4byte	0x2d2
+ 779 02b7 0B       		.uleb128 0xb
+ 780 02b8 FB0A0000 		.4byte	.LASF79
+ 781 02bc 03       		.byte	0x3
+ 782 02bd 9E01     		.2byte	0x19e
+ 783 02bf A2020000 		.4byte	0x2a2
+ 784 02c3 00       		.byte	0
+ 785 02c4 0B       		.uleb128 0xb
+ 786 02c5 FA080000 		.4byte	.LASF80
+ 787 02c9 03       		.byte	0x3
+ 788 02ca A101     		.2byte	0x1a1
+ 789 02cc 35020000 		.4byte	0x235
+ 790 02d0 08       		.byte	0x8
+ 791 02d1 00       		.byte	0
+ 792 02d2 09       		.uleb128 0x9
+ 793 02d3 20090000 		.4byte	.LASF81
+ 794 02d7 03       		.byte	0x3
+ 795 02d8 A301     		.2byte	0x1a3
+ 796 02da AE020000 		.4byte	0x2ae
+ 797 02de 04       		.uleb128 0x4
+ 798 02df A0030000 		.4byte	.LASF82
+ 799 02e3 04       		.byte	0x4
+ 800 02e4 2D       		.byte	0x2d
+ 801 02e5 D2020000 		.4byte	0x2d2
+ 802 02e9 0D       		.uleb128 0xd
+ 803 02ea 10       		.byte	0x10
+ 804 02eb 04       		.byte	0x4
+ 805 02ec 83       		.byte	0x83
+ 806 02ed 0A030000 		.4byte	0x30a
+ 807 02f1 0E       		.uleb128 0xe
+ 808 02f2 1E010000 		.4byte	.LASF83
+ 809 02f6 04       		.byte	0x4
+ 810 02f7 86       		.byte	0x86
+ 811 02f8 65020000 		.4byte	0x265
+ 812 02fc 00       		.byte	0
+ 813 02fd 0E       		.uleb128 0xe
+ 814 02fe 31000000 		.4byte	.LASF84
+ 815 0302 04       		.byte	0x4
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 21
+
+
+ 816 0303 89       		.byte	0x89
+ 817 0304 D2020000 		.4byte	0x2d2
+ 818 0308 04       		.byte	0x4
+ 819 0309 00       		.byte	0
+ 820 030a 04       		.uleb128 0x4
+ 821 030b 8C040000 		.4byte	.LASF85
+ 822 030f 04       		.byte	0x4
+ 823 0310 8B       		.byte	0x8b
+ 824 0311 E9020000 		.4byte	0x2e9
+ 825 0315 0D       		.uleb128 0xd
+ 826 0316 06       		.byte	0x6
+ 827 0317 05       		.byte	0x5
+ 828 0318 45       		.byte	0x45
+ 829 0319 36030000 		.4byte	0x336
+ 830 031d 0E       		.uleb128 0xe
+ 831 031e 62090000 		.4byte	.LASF86
+ 832 0322 05       		.byte	0x5
+ 833 0323 48       		.byte	0x48
+ 834 0324 35020000 		.4byte	0x235
+ 835 0328 00       		.byte	0
+ 836 0329 0E       		.uleb128 0xe
+ 837 032a 38020000 		.4byte	.LASF87
+ 838 032e 05       		.byte	0x5
+ 839 032f 4A       		.byte	0x4a
+ 840 0330 36030000 		.4byte	0x336
+ 841 0334 02       		.byte	0x2
+ 842 0335 00       		.byte	0
+ 843 0336 0F       		.uleb128 0xf
+ 844 0337 35020000 		.4byte	0x235
+ 845 033b 46030000 		.4byte	0x346
+ 846 033f 10       		.uleb128 0x10
+ 847 0340 A1000000 		.4byte	0xa1
+ 848 0344 01       		.byte	0x1
+ 849 0345 00       		.byte	0
+ 850 0346 04       		.uleb128 0x4
+ 851 0347 8B030000 		.4byte	.LASF88
+ 852 034b 05       		.byte	0x5
+ 853 034c 4B       		.byte	0x4b
+ 854 034d 15030000 		.4byte	0x315
+ 855 0351 0D       		.uleb128 0xd
+ 856 0352 08       		.byte	0x8
+ 857 0353 05       		.byte	0x5
+ 858 0354 4E       		.byte	0x4e
+ 859 0355 72030000 		.4byte	0x372
+ 860 0359 0E       		.uleb128 0xe
+ 861 035a 8D0B0000 		.4byte	.LASF89
+ 862 035e 05       		.byte	0x5
+ 863 035f 51       		.byte	0x51
+ 864 0360 35020000 		.4byte	0x235
+ 865 0364 00       		.byte	0
+ 866 0365 0E       		.uleb128 0xe
+ 867 0366 62050000 		.4byte	.LASF90
+ 868 036a 05       		.byte	0x5
+ 869 036b 54       		.byte	0x54
+ 870 036c 72030000 		.4byte	0x372
+ 871 0370 02       		.byte	0x2
+ 872 0371 00       		.byte	0
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 22
+
+
+ 873 0372 0F       		.uleb128 0xf
+ 874 0373 46030000 		.4byte	0x346
+ 875 0377 82030000 		.4byte	0x382
+ 876 037b 10       		.uleb128 0x10
+ 877 037c A1000000 		.4byte	0xa1
+ 878 0380 00       		.byte	0
+ 879 0381 00       		.byte	0
+ 880 0382 04       		.uleb128 0x4
+ 881 0383 EC040000 		.4byte	.LASF91
+ 882 0387 05       		.byte	0x5
+ 883 0388 55       		.byte	0x55
+ 884 0389 51030000 		.4byte	0x351
+ 885 038d 11       		.uleb128 0x11
+ 886 038e 01       		.byte	0x1
+ 887 038f 07       		.byte	0x7
+ 888 0390 1907     		.2byte	0x719
+ 889 0392 B5030000 		.4byte	0x3b5
+ 890 0396 07       		.uleb128 0x7
+ 891 0397 90090000 		.4byte	.LASF92
+ 892 039b 00       		.sleb128 0
+ 893 039c 07       		.uleb128 0x7
+ 894 039d 3F000000 		.4byte	.LASF93
+ 895 03a1 01       		.sleb128 1
+ 896 03a2 07       		.uleb128 0x7
+ 897 03a3 B0010000 		.4byte	.LASF94
+ 898 03a7 02       		.sleb128 2
+ 899 03a8 07       		.uleb128 0x7
+ 900 03a9 7B080000 		.4byte	.LASF95
+ 901 03ad 03       		.sleb128 3
+ 902 03ae 07       		.uleb128 0x7
+ 903 03af 04080000 		.4byte	.LASF96
+ 904 03b3 04       		.sleb128 4
+ 905 03b4 00       		.byte	0
+ 906 03b5 09       		.uleb128 0x9
+ 907 03b6 B4060000 		.4byte	.LASF97
+ 908 03ba 07       		.byte	0x7
+ 909 03bb 2707     		.2byte	0x727
+ 910 03bd 8D030000 		.4byte	0x38d
+ 911 03c1 12       		.uleb128 0x12
+ 912 03c2 29010000 		.4byte	.LASF103
+ 913 03c6 01       		.byte	0x1
+ 914 03c7 53       		.byte	0x53
+ 915 03c8 00000000 		.4byte	.LFB35
+ 916 03cc 44010000 		.4byte	.LFE35-.LFB35
+ 917 03d0 01       		.uleb128 0x1
+ 918 03d1 9C       		.byte	0x9c
+ 919 03d2 1D040000 		.4byte	0x41d
+ 920 03d6 13       		.uleb128 0x13
+ 921 03d7 61010000 		.4byte	.LASF98
+ 922 03db 01       		.byte	0x1
+ 923 03dc 53       		.byte	0x53
+ 924 03dd 81000000 		.4byte	0x81
+ 925 03e1 02       		.uleb128 0x2
+ 926 03e2 91       		.byte	0x91
+ 927 03e3 5C       		.sleb128 -36
+ 928 03e4 13       		.uleb128 0x13
+ 929 03e5 3C0B0000 		.4byte	.LASF99
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 23
+
+
+ 930 03e9 01       		.byte	0x1
+ 931 03ea 53       		.byte	0x53
+ 932 03eb A8000000 		.4byte	0xa8
+ 933 03ef 02       		.uleb128 0x2
+ 934 03f0 91       		.byte	0x91
+ 935 03f1 58       		.sleb128 -40
+ 936 03f2 14       		.uleb128 0x14
+ 937 03f3 3C010000 		.4byte	.LASF100
+ 938 03f7 01       		.byte	0x1
+ 939 03f8 56       		.byte	0x56
+ 940 03f9 1D040000 		.4byte	0x41d
+ 941 03fd 02       		.uleb128 0x2
+ 942 03fe 91       		.byte	0x91
+ 943 03ff 74       		.sleb128 -12
+ 944 0400 14       		.uleb128 0x14
+ 945 0401 AA040000 		.4byte	.LASF101
+ 946 0405 01       		.byte	0x1
+ 947 0406 59       		.byte	0x59
+ 948 0407 23040000 		.4byte	0x423
+ 949 040b 02       		.uleb128 0x2
+ 950 040c 91       		.byte	0x91
+ 951 040d 70       		.sleb128 -16
+ 952 040e 14       		.uleb128 0x14
+ 953 040f 6A020000 		.4byte	.LASF102
+ 954 0413 01       		.byte	0x1
+ 955 0414 5C       		.byte	0x5c
+ 956 0415 D2020000 		.4byte	0x2d2
+ 957 0419 02       		.uleb128 0x2
+ 958 041a 91       		.byte	0x91
+ 959 041b 64       		.sleb128 -28
+ 960 041c 00       		.byte	0
+ 961 041d 08       		.uleb128 0x8
+ 962 041e 04       		.byte	0x4
+ 963 041f 0A030000 		.4byte	0x30a
+ 964 0423 0F       		.uleb128 0xf
+ 965 0424 6B000000 		.4byte	0x6b
+ 966 0428 33040000 		.4byte	0x433
+ 967 042c 10       		.uleb128 0x10
+ 968 042d A1000000 		.4byte	0xa1
+ 969 0431 01       		.byte	0x1
+ 970 0432 00       		.byte	0
+ 971 0433 12       		.uleb128 0x12
+ 972 0434 1A030000 		.4byte	.LASF104
+ 973 0438 01       		.byte	0x1
+ 974 0439 E9       		.byte	0xe9
+ 975 043a 00000000 		.4byte	.LFB36
+ 976 043e 50000000 		.4byte	.LFE36-.LFB36
+ 977 0442 01       		.uleb128 0x1
+ 978 0443 9C       		.byte	0x9c
+ 979 0444 65040000 		.4byte	0x465
+ 980 0448 13       		.uleb128 0x13
+ 981 0449 E9030000 		.4byte	.LASF105
+ 982 044d 01       		.byte	0x1
+ 983 044e E9       		.byte	0xe9
+ 984 044f 6B000000 		.4byte	0x6b
+ 985 0453 02       		.uleb128 0x2
+ 986 0454 91       		.byte	0x91
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 24
+
+
+ 987 0455 67       		.sleb128 -25
+ 988 0456 14       		.uleb128 0x14
+ 989 0457 F0020000 		.4byte	.LASF106
+ 990 045b 01       		.byte	0x1
+ 991 045c EC       		.byte	0xec
+ 992 045d DE020000 		.4byte	0x2de
+ 993 0461 02       		.uleb128 0x2
+ 994 0462 91       		.byte	0x91
+ 995 0463 6C       		.sleb128 -20
+ 996 0464 00       		.byte	0
+ 997 0465 15       		.uleb128 0x15
+ 998 0466 00000000 		.4byte	.LASF107
+ 999 046a 01       		.byte	0x1
+ 1000 046b 0701     		.2byte	0x107
+ 1001 046d 00000000 		.4byte	.LFB37
+ 1002 0471 C8000000 		.4byte	.LFE37-.LFB37
+ 1003 0475 01       		.uleb128 0x1
+ 1004 0476 9C       		.byte	0x9c
+ 1005 0477 B8040000 		.4byte	0x4b8
+ 1006 047b 16       		.uleb128 0x16
+ 1007 047c 34080000 		.4byte	.LASF108
+ 1008 0480 01       		.byte	0x1
+ 1009 0481 0A01     		.2byte	0x10a
+ 1010 0483 6B000000 		.4byte	0x6b
+ 1011 0487 02       		.uleb128 0x2
+ 1012 0488 91       		.byte	0x91
+ 1013 0489 76       		.sleb128 -10
+ 1014 048a 16       		.uleb128 0x16
+ 1015 048b 1B040000 		.4byte	.LASF109
+ 1016 048f 01       		.byte	0x1
+ 1017 0490 0B01     		.2byte	0x10b
+ 1018 0492 6B000000 		.4byte	0x6b
+ 1019 0496 02       		.uleb128 0x2
+ 1020 0497 91       		.byte	0x91
+ 1021 0498 75       		.sleb128 -11
+ 1022 0499 16       		.uleb128 0x16
+ 1023 049a E4010000 		.4byte	.LASF110
+ 1024 049e 01       		.byte	0x1
+ 1025 049f 0C01     		.2byte	0x10c
+ 1026 04a1 6B000000 		.4byte	0x6b
+ 1027 04a5 02       		.uleb128 0x2
+ 1028 04a6 91       		.byte	0x91
+ 1029 04a7 74       		.sleb128 -12
+ 1030 04a8 16       		.uleb128 0x16
+ 1031 04a9 1D080000 		.4byte	.LASF111
+ 1032 04ad 01       		.byte	0x1
+ 1033 04ae 0D01     		.2byte	0x10d
+ 1034 04b0 6B000000 		.4byte	0x6b
+ 1035 04b4 02       		.uleb128 0x2
+ 1036 04b5 91       		.byte	0x91
+ 1037 04b6 77       		.sleb128 -9
+ 1038 04b7 00       		.byte	0
+ 1039 04b8 0F       		.uleb128 0xf
+ 1040 04b9 82030000 		.4byte	0x382
+ 1041 04bd C8040000 		.4byte	0x4c8
+ 1042 04c1 10       		.uleb128 0x10
+ 1043 04c2 A1000000 		.4byte	0xa1
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 25
+
+
+ 1044 04c6 01       		.byte	0x1
+ 1045 04c7 00       		.byte	0
+ 1046 04c8 17       		.uleb128 0x17
+ 1047 04c9 470B0000 		.4byte	.LASF112
+ 1048 04cd 05       		.byte	0x5
+ 1049 04ce 92       		.byte	0x92
+ 1050 04cf D3040000 		.4byte	0x4d3
+ 1051 04d3 18       		.uleb128 0x18
+ 1052 04d4 B8040000 		.4byte	0x4b8
+ 1053 04d8 19       		.uleb128 0x19
+ 1054 04d9 90050000 		.4byte	.LASF113
+ 1055 04dd 07       		.byte	0x7
+ 1056 04de 0009     		.2byte	0x900
+ 1057 04e0 B5030000 		.4byte	0x3b5
+ 1058 04e4 19       		.uleb128 0x19
+ 1059 04e5 A0020000 		.4byte	.LASF114
+ 1060 04e9 07       		.byte	0x7
+ 1061 04ea 0109     		.2byte	0x901
+ 1062 04ec 65020000 		.4byte	0x265
+ 1063 04f0 1A       		.uleb128 0x1a
+ 1064 04f1 C3000000 		.4byte	.LASF115
+ 1065 04f5 01       		.byte	0x1
+ 1066 04f6 42       		.byte	0x42
+ 1067 04f7 6B000000 		.4byte	0x6b
+ 1068 04fb 05       		.uleb128 0x5
+ 1069 04fc 03       		.byte	0x3
+ 1070 04fd 00000000 		.4byte	deviceConnected
+ 1071 0501 1A       		.uleb128 0x1a
+ 1072 0502 58000000 		.4byte	.LASF116
+ 1073 0506 01       		.byte	0x1
+ 1074 0507 39       		.byte	0x39
+ 1075 0508 6B000000 		.4byte	0x6b
+ 1076 050c 05       		.uleb128 0x5
+ 1077 050d 03       		.byte	0x3
+ 1078 050e 00000000 		.4byte	sendCapSenseSliderNotifications
+ 1079 0512 1A       		.uleb128 0x1a
+ 1080 0513 E2040000 		.4byte	.LASF117
+ 1081 0517 01       		.byte	0x1
+ 1082 0518 35       		.byte	0x35
+ 1083 0519 D2020000 		.4byte	0x2d2
+ 1084 051d 05       		.uleb128 0x5
+ 1085 051e 03       		.byte	0x3
+ 1086 051f 00000000 		.4byte	rgbHandle
+ 1087 0523 0F       		.uleb128 0xf
+ 1088 0524 6B000000 		.4byte	0x6b
+ 1089 0528 33050000 		.4byte	0x533
+ 1090 052c 10       		.uleb128 0x10
+ 1091 052d A1000000 		.4byte	0xa1
+ 1092 0531 03       		.byte	0x3
+ 1093 0532 00       		.byte	0
+ 1094 0533 1A       		.uleb128 0x1a
+ 1095 0534 24070000 		.4byte	.LASF118
+ 1096 0538 01       		.byte	0x1
+ 1097 0539 3D       		.byte	0x3d
+ 1098 053a 23050000 		.4byte	0x523
+ 1099 053e 05       		.uleb128 0x5
+ 1100 053f 03       		.byte	0x3
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 26
+
+
+ 1101 0540 00000000 		.4byte	RGBledData
+ 1102 0544 00       		.byte	0
+ 1103              		.section	.debug_abbrev,"",%progbits
+ 1104              	.Ldebug_abbrev0:
+ 1105 0000 01       		.uleb128 0x1
+ 1106 0001 11       		.uleb128 0x11
+ 1107 0002 01       		.byte	0x1
+ 1108 0003 25       		.uleb128 0x25
+ 1109 0004 0E       		.uleb128 0xe
+ 1110 0005 13       		.uleb128 0x13
+ 1111 0006 0B       		.uleb128 0xb
+ 1112 0007 03       		.uleb128 0x3
+ 1113 0008 0E       		.uleb128 0xe
+ 1114 0009 1B       		.uleb128 0x1b
+ 1115 000a 0E       		.uleb128 0xe
+ 1116 000b 55       		.uleb128 0x55
+ 1117 000c 17       		.uleb128 0x17
+ 1118 000d 11       		.uleb128 0x11
+ 1119 000e 01       		.uleb128 0x1
+ 1120 000f 10       		.uleb128 0x10
+ 1121 0010 17       		.uleb128 0x17
+ 1122 0011 00       		.byte	0
+ 1123 0012 00       		.byte	0
+ 1124 0013 02       		.uleb128 0x2
+ 1125 0014 24       		.uleb128 0x24
+ 1126 0015 00       		.byte	0
+ 1127 0016 0B       		.uleb128 0xb
+ 1128 0017 0B       		.uleb128 0xb
+ 1129 0018 3E       		.uleb128 0x3e
+ 1130 0019 0B       		.uleb128 0xb
+ 1131 001a 03       		.uleb128 0x3
+ 1132 001b 0E       		.uleb128 0xe
+ 1133 001c 00       		.byte	0
+ 1134 001d 00       		.byte	0
+ 1135 001e 03       		.uleb128 0x3
+ 1136 001f 24       		.uleb128 0x24
+ 1137 0020 00       		.byte	0
+ 1138 0021 0B       		.uleb128 0xb
+ 1139 0022 0B       		.uleb128 0xb
+ 1140 0023 3E       		.uleb128 0x3e
+ 1141 0024 0B       		.uleb128 0xb
+ 1142 0025 03       		.uleb128 0x3
+ 1143 0026 08       		.uleb128 0x8
+ 1144 0027 00       		.byte	0
+ 1145 0028 00       		.byte	0
+ 1146 0029 04       		.uleb128 0x4
+ 1147 002a 16       		.uleb128 0x16
+ 1148 002b 00       		.byte	0
+ 1149 002c 03       		.uleb128 0x3
+ 1150 002d 0E       		.uleb128 0xe
+ 1151 002e 3A       		.uleb128 0x3a
+ 1152 002f 0B       		.uleb128 0xb
+ 1153 0030 3B       		.uleb128 0x3b
+ 1154 0031 0B       		.uleb128 0xb
+ 1155 0032 49       		.uleb128 0x49
+ 1156 0033 13       		.uleb128 0x13
+ 1157 0034 00       		.byte	0
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 27
+
+
+ 1158 0035 00       		.byte	0
+ 1159 0036 05       		.uleb128 0x5
+ 1160 0037 0F       		.uleb128 0xf
+ 1161 0038 00       		.byte	0
+ 1162 0039 0B       		.uleb128 0xb
+ 1163 003a 0B       		.uleb128 0xb
+ 1164 003b 00       		.byte	0
+ 1165 003c 00       		.byte	0
+ 1166 003d 06       		.uleb128 0x6
+ 1167 003e 04       		.uleb128 0x4
+ 1168 003f 01       		.byte	0x1
+ 1169 0040 0B       		.uleb128 0xb
+ 1170 0041 0B       		.uleb128 0xb
+ 1171 0042 3A       		.uleb128 0x3a
+ 1172 0043 0B       		.uleb128 0xb
+ 1173 0044 3B       		.uleb128 0x3b
+ 1174 0045 0B       		.uleb128 0xb
+ 1175 0046 01       		.uleb128 0x1
+ 1176 0047 13       		.uleb128 0x13
+ 1177 0048 00       		.byte	0
+ 1178 0049 00       		.byte	0
+ 1179 004a 07       		.uleb128 0x7
+ 1180 004b 28       		.uleb128 0x28
+ 1181 004c 00       		.byte	0
+ 1182 004d 03       		.uleb128 0x3
+ 1183 004e 0E       		.uleb128 0xe
+ 1184 004f 1C       		.uleb128 0x1c
+ 1185 0050 0D       		.uleb128 0xd
+ 1186 0051 00       		.byte	0
+ 1187 0052 00       		.byte	0
+ 1188 0053 08       		.uleb128 0x8
+ 1189 0054 0F       		.uleb128 0xf
+ 1190 0055 00       		.byte	0
+ 1191 0056 0B       		.uleb128 0xb
+ 1192 0057 0B       		.uleb128 0xb
+ 1193 0058 49       		.uleb128 0x49
+ 1194 0059 13       		.uleb128 0x13
+ 1195 005a 00       		.byte	0
+ 1196 005b 00       		.byte	0
+ 1197 005c 09       		.uleb128 0x9
+ 1198 005d 16       		.uleb128 0x16
+ 1199 005e 00       		.byte	0
+ 1200 005f 03       		.uleb128 0x3
+ 1201 0060 0E       		.uleb128 0xe
+ 1202 0061 3A       		.uleb128 0x3a
+ 1203 0062 0B       		.uleb128 0xb
+ 1204 0063 3B       		.uleb128 0x3b
+ 1205 0064 05       		.uleb128 0x5
+ 1206 0065 49       		.uleb128 0x49
+ 1207 0066 13       		.uleb128 0x13
+ 1208 0067 00       		.byte	0
+ 1209 0068 00       		.byte	0
+ 1210 0069 0A       		.uleb128 0xa
+ 1211 006a 13       		.uleb128 0x13
+ 1212 006b 01       		.byte	0x1
+ 1213 006c 0B       		.uleb128 0xb
+ 1214 006d 0B       		.uleb128 0xb
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 28
+
+
+ 1215 006e 3A       		.uleb128 0x3a
+ 1216 006f 0B       		.uleb128 0xb
+ 1217 0070 3B       		.uleb128 0x3b
+ 1218 0071 05       		.uleb128 0x5
+ 1219 0072 01       		.uleb128 0x1
+ 1220 0073 13       		.uleb128 0x13
+ 1221 0074 00       		.byte	0
+ 1222 0075 00       		.byte	0
+ 1223 0076 0B       		.uleb128 0xb
+ 1224 0077 0D       		.uleb128 0xd
+ 1225 0078 00       		.byte	0
+ 1226 0079 03       		.uleb128 0x3
+ 1227 007a 0E       		.uleb128 0xe
+ 1228 007b 3A       		.uleb128 0x3a
+ 1229 007c 0B       		.uleb128 0xb
+ 1230 007d 3B       		.uleb128 0x3b
+ 1231 007e 05       		.uleb128 0x5
+ 1232 007f 49       		.uleb128 0x49
+ 1233 0080 13       		.uleb128 0x13
+ 1234 0081 38       		.uleb128 0x38
+ 1235 0082 0B       		.uleb128 0xb
+ 1236 0083 00       		.byte	0
+ 1237 0084 00       		.byte	0
+ 1238 0085 0C       		.uleb128 0xc
+ 1239 0086 0D       		.uleb128 0xd
+ 1240 0087 00       		.byte	0
+ 1241 0088 03       		.uleb128 0x3
+ 1242 0089 08       		.uleb128 0x8
+ 1243 008a 3A       		.uleb128 0x3a
+ 1244 008b 0B       		.uleb128 0xb
+ 1245 008c 3B       		.uleb128 0x3b
+ 1246 008d 05       		.uleb128 0x5
+ 1247 008e 49       		.uleb128 0x49
+ 1248 008f 13       		.uleb128 0x13
+ 1249 0090 38       		.uleb128 0x38
+ 1250 0091 0B       		.uleb128 0xb
+ 1251 0092 00       		.byte	0
+ 1252 0093 00       		.byte	0
+ 1253 0094 0D       		.uleb128 0xd
+ 1254 0095 13       		.uleb128 0x13
+ 1255 0096 01       		.byte	0x1
+ 1256 0097 0B       		.uleb128 0xb
+ 1257 0098 0B       		.uleb128 0xb
+ 1258 0099 3A       		.uleb128 0x3a
+ 1259 009a 0B       		.uleb128 0xb
+ 1260 009b 3B       		.uleb128 0x3b
+ 1261 009c 0B       		.uleb128 0xb
+ 1262 009d 01       		.uleb128 0x1
+ 1263 009e 13       		.uleb128 0x13
+ 1264 009f 00       		.byte	0
+ 1265 00a0 00       		.byte	0
+ 1266 00a1 0E       		.uleb128 0xe
+ 1267 00a2 0D       		.uleb128 0xd
+ 1268 00a3 00       		.byte	0
+ 1269 00a4 03       		.uleb128 0x3
+ 1270 00a5 0E       		.uleb128 0xe
+ 1271 00a6 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 29
+
+
+ 1272 00a7 0B       		.uleb128 0xb
+ 1273 00a8 3B       		.uleb128 0x3b
+ 1274 00a9 0B       		.uleb128 0xb
+ 1275 00aa 49       		.uleb128 0x49
+ 1276 00ab 13       		.uleb128 0x13
+ 1277 00ac 38       		.uleb128 0x38
+ 1278 00ad 0B       		.uleb128 0xb
+ 1279 00ae 00       		.byte	0
+ 1280 00af 00       		.byte	0
+ 1281 00b0 0F       		.uleb128 0xf
+ 1282 00b1 01       		.uleb128 0x1
+ 1283 00b2 01       		.byte	0x1
+ 1284 00b3 49       		.uleb128 0x49
+ 1285 00b4 13       		.uleb128 0x13
+ 1286 00b5 01       		.uleb128 0x1
+ 1287 00b6 13       		.uleb128 0x13
+ 1288 00b7 00       		.byte	0
+ 1289 00b8 00       		.byte	0
+ 1290 00b9 10       		.uleb128 0x10
+ 1291 00ba 21       		.uleb128 0x21
+ 1292 00bb 00       		.byte	0
+ 1293 00bc 49       		.uleb128 0x49
+ 1294 00bd 13       		.uleb128 0x13
+ 1295 00be 2F       		.uleb128 0x2f
+ 1296 00bf 0B       		.uleb128 0xb
+ 1297 00c0 00       		.byte	0
+ 1298 00c1 00       		.byte	0
+ 1299 00c2 11       		.uleb128 0x11
+ 1300 00c3 04       		.uleb128 0x4
+ 1301 00c4 01       		.byte	0x1
+ 1302 00c5 0B       		.uleb128 0xb
+ 1303 00c6 0B       		.uleb128 0xb
+ 1304 00c7 3A       		.uleb128 0x3a
+ 1305 00c8 0B       		.uleb128 0xb
+ 1306 00c9 3B       		.uleb128 0x3b
+ 1307 00ca 05       		.uleb128 0x5
+ 1308 00cb 01       		.uleb128 0x1
+ 1309 00cc 13       		.uleb128 0x13
+ 1310 00cd 00       		.byte	0
+ 1311 00ce 00       		.byte	0
+ 1312 00cf 12       		.uleb128 0x12
+ 1313 00d0 2E       		.uleb128 0x2e
+ 1314 00d1 01       		.byte	0x1
+ 1315 00d2 3F       		.uleb128 0x3f
+ 1316 00d3 19       		.uleb128 0x19
+ 1317 00d4 03       		.uleb128 0x3
+ 1318 00d5 0E       		.uleb128 0xe
+ 1319 00d6 3A       		.uleb128 0x3a
+ 1320 00d7 0B       		.uleb128 0xb
+ 1321 00d8 3B       		.uleb128 0x3b
+ 1322 00d9 0B       		.uleb128 0xb
+ 1323 00da 27       		.uleb128 0x27
+ 1324 00db 19       		.uleb128 0x19
+ 1325 00dc 11       		.uleb128 0x11
+ 1326 00dd 01       		.uleb128 0x1
+ 1327 00de 12       		.uleb128 0x12
+ 1328 00df 06       		.uleb128 0x6
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 30
+
+
+ 1329 00e0 40       		.uleb128 0x40
+ 1330 00e1 18       		.uleb128 0x18
+ 1331 00e2 9642     		.uleb128 0x2116
+ 1332 00e4 19       		.uleb128 0x19
+ 1333 00e5 01       		.uleb128 0x1
+ 1334 00e6 13       		.uleb128 0x13
+ 1335 00e7 00       		.byte	0
+ 1336 00e8 00       		.byte	0
+ 1337 00e9 13       		.uleb128 0x13
+ 1338 00ea 05       		.uleb128 0x5
+ 1339 00eb 00       		.byte	0
+ 1340 00ec 03       		.uleb128 0x3
+ 1341 00ed 0E       		.uleb128 0xe
+ 1342 00ee 3A       		.uleb128 0x3a
+ 1343 00ef 0B       		.uleb128 0xb
+ 1344 00f0 3B       		.uleb128 0x3b
+ 1345 00f1 0B       		.uleb128 0xb
+ 1346 00f2 49       		.uleb128 0x49
+ 1347 00f3 13       		.uleb128 0x13
+ 1348 00f4 02       		.uleb128 0x2
+ 1349 00f5 18       		.uleb128 0x18
+ 1350 00f6 00       		.byte	0
+ 1351 00f7 00       		.byte	0
+ 1352 00f8 14       		.uleb128 0x14
+ 1353 00f9 34       		.uleb128 0x34
+ 1354 00fa 00       		.byte	0
+ 1355 00fb 03       		.uleb128 0x3
+ 1356 00fc 0E       		.uleb128 0xe
+ 1357 00fd 3A       		.uleb128 0x3a
+ 1358 00fe 0B       		.uleb128 0xb
+ 1359 00ff 3B       		.uleb128 0x3b
+ 1360 0100 0B       		.uleb128 0xb
+ 1361 0101 49       		.uleb128 0x49
+ 1362 0102 13       		.uleb128 0x13
+ 1363 0103 02       		.uleb128 0x2
+ 1364 0104 18       		.uleb128 0x18
+ 1365 0105 00       		.byte	0
+ 1366 0106 00       		.byte	0
+ 1367 0107 15       		.uleb128 0x15
+ 1368 0108 2E       		.uleb128 0x2e
+ 1369 0109 01       		.byte	0x1
+ 1370 010a 3F       		.uleb128 0x3f
+ 1371 010b 19       		.uleb128 0x19
+ 1372 010c 03       		.uleb128 0x3
+ 1373 010d 0E       		.uleb128 0xe
+ 1374 010e 3A       		.uleb128 0x3a
+ 1375 010f 0B       		.uleb128 0xb
+ 1376 0110 3B       		.uleb128 0x3b
+ 1377 0111 05       		.uleb128 0x5
+ 1378 0112 27       		.uleb128 0x27
+ 1379 0113 19       		.uleb128 0x19
+ 1380 0114 11       		.uleb128 0x11
+ 1381 0115 01       		.uleb128 0x1
+ 1382 0116 12       		.uleb128 0x12
+ 1383 0117 06       		.uleb128 0x6
+ 1384 0118 40       		.uleb128 0x40
+ 1385 0119 18       		.uleb128 0x18
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 31
+
+
+ 1386 011a 9642     		.uleb128 0x2116
+ 1387 011c 19       		.uleb128 0x19
+ 1388 011d 01       		.uleb128 0x1
+ 1389 011e 13       		.uleb128 0x13
+ 1390 011f 00       		.byte	0
+ 1391 0120 00       		.byte	0
+ 1392 0121 16       		.uleb128 0x16
+ 1393 0122 34       		.uleb128 0x34
+ 1394 0123 00       		.byte	0
+ 1395 0124 03       		.uleb128 0x3
+ 1396 0125 0E       		.uleb128 0xe
+ 1397 0126 3A       		.uleb128 0x3a
+ 1398 0127 0B       		.uleb128 0xb
+ 1399 0128 3B       		.uleb128 0x3b
+ 1400 0129 05       		.uleb128 0x5
+ 1401 012a 49       		.uleb128 0x49
+ 1402 012b 13       		.uleb128 0x13
+ 1403 012c 02       		.uleb128 0x2
+ 1404 012d 18       		.uleb128 0x18
+ 1405 012e 00       		.byte	0
+ 1406 012f 00       		.byte	0
+ 1407 0130 17       		.uleb128 0x17
+ 1408 0131 34       		.uleb128 0x34
+ 1409 0132 00       		.byte	0
+ 1410 0133 03       		.uleb128 0x3
+ 1411 0134 0E       		.uleb128 0xe
+ 1412 0135 3A       		.uleb128 0x3a
+ 1413 0136 0B       		.uleb128 0xb
+ 1414 0137 3B       		.uleb128 0x3b
+ 1415 0138 0B       		.uleb128 0xb
+ 1416 0139 49       		.uleb128 0x49
+ 1417 013a 13       		.uleb128 0x13
+ 1418 013b 3F       		.uleb128 0x3f
+ 1419 013c 19       		.uleb128 0x19
+ 1420 013d 3C       		.uleb128 0x3c
+ 1421 013e 19       		.uleb128 0x19
+ 1422 013f 00       		.byte	0
+ 1423 0140 00       		.byte	0
+ 1424 0141 18       		.uleb128 0x18
+ 1425 0142 26       		.uleb128 0x26
+ 1426 0143 00       		.byte	0
+ 1427 0144 49       		.uleb128 0x49
+ 1428 0145 13       		.uleb128 0x13
+ 1429 0146 00       		.byte	0
+ 1430 0147 00       		.byte	0
+ 1431 0148 19       		.uleb128 0x19
+ 1432 0149 34       		.uleb128 0x34
+ 1433 014a 00       		.byte	0
+ 1434 014b 03       		.uleb128 0x3
+ 1435 014c 0E       		.uleb128 0xe
+ 1436 014d 3A       		.uleb128 0x3a
+ 1437 014e 0B       		.uleb128 0xb
+ 1438 014f 3B       		.uleb128 0x3b
+ 1439 0150 05       		.uleb128 0x5
+ 1440 0151 49       		.uleb128 0x49
+ 1441 0152 13       		.uleb128 0x13
+ 1442 0153 3F       		.uleb128 0x3f
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 32
+
+
+ 1443 0154 19       		.uleb128 0x19
+ 1444 0155 3C       		.uleb128 0x3c
+ 1445 0156 19       		.uleb128 0x19
+ 1446 0157 00       		.byte	0
+ 1447 0158 00       		.byte	0
+ 1448 0159 1A       		.uleb128 0x1a
+ 1449 015a 34       		.uleb128 0x34
+ 1450 015b 00       		.byte	0
+ 1451 015c 03       		.uleb128 0x3
+ 1452 015d 0E       		.uleb128 0xe
+ 1453 015e 3A       		.uleb128 0x3a
+ 1454 015f 0B       		.uleb128 0xb
+ 1455 0160 3B       		.uleb128 0x3b
+ 1456 0161 0B       		.uleb128 0xb
+ 1457 0162 49       		.uleb128 0x49
+ 1458 0163 13       		.uleb128 0x13
+ 1459 0164 3F       		.uleb128 0x3f
+ 1460 0165 19       		.uleb128 0x19
+ 1461 0166 02       		.uleb128 0x2
+ 1462 0167 18       		.uleb128 0x18
+ 1463 0168 00       		.byte	0
+ 1464 0169 00       		.byte	0
+ 1465 016a 00       		.byte	0
+ 1466              		.section	.debug_aranges,"",%progbits
+ 1467 0000 2C000000 		.4byte	0x2c
+ 1468 0004 0200     		.2byte	0x2
+ 1469 0006 00000000 		.4byte	.Ldebug_info0
+ 1470 000a 04       		.byte	0x4
+ 1471 000b 00       		.byte	0
+ 1472 000c 0000     		.2byte	0
+ 1473 000e 0000     		.2byte	0
+ 1474 0010 00000000 		.4byte	.LFB35
+ 1475 0014 44010000 		.4byte	.LFE35-.LFB35
+ 1476 0018 00000000 		.4byte	.LFB36
+ 1477 001c 50000000 		.4byte	.LFE36-.LFB36
+ 1478 0020 00000000 		.4byte	.LFB37
+ 1479 0024 C8000000 		.4byte	.LFE37-.LFB37
+ 1480 0028 00000000 		.4byte	0
+ 1481 002c 00000000 		.4byte	0
+ 1482              		.section	.debug_ranges,"",%progbits
+ 1483              	.Ldebug_ranges0:
+ 1484 0000 00000000 		.4byte	.LFB35
+ 1485 0004 44010000 		.4byte	.LFE35
+ 1486 0008 00000000 		.4byte	.LFB36
+ 1487 000c 50000000 		.4byte	.LFE36
+ 1488 0010 00000000 		.4byte	.LFB37
+ 1489 0014 C8000000 		.4byte	.LFE37
+ 1490 0018 00000000 		.4byte	0
+ 1491 001c 00000000 		.4byte	0
+ 1492              		.section	.debug_line,"",%progbits
+ 1493              	.Ldebug_line0:
+ 1494 0000 40010000 		.section	.debug_str,"MS",%progbits,1
+ 1494      0200B900 
+ 1494      00000201 
+ 1494      FB0E0D00 
+ 1494      01010101 
+ 1495              	.LASF107:
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 33
+
+
+ 1496 0000 55706461 		.ascii	"UpdateRGBled\000"
+ 1496      74655247 
+ 1496      426C6564 
+ 1496      00
+ 1497              	.LASF24:
+ 1498 000d 4359424C 		.ascii	"CYBLE_EVT_GAP_PASSKEY_ENTRY_REQUEST\000"
+ 1498      455F4556 
+ 1498      545F4741 
+ 1498      505F5041 
+ 1498      53534B45 
+ 1499              	.LASF84:
+ 1500 0031 68616E64 		.ascii	"handleValPair\000"
+ 1500      6C655661 
+ 1500      6C506169 
+ 1500      7200
+ 1501              	.LASF93:
+ 1502 003f 4359424C 		.ascii	"CYBLE_STATE_INITIALIZING\000"
+ 1502      455F5354 
+ 1502      4154455F 
+ 1502      494E4954 
+ 1502      49414C49 
+ 1503              	.LASF116:
+ 1504 0058 73656E64 		.ascii	"sendCapSenseSliderNotifications\000"
+ 1504      43617053 
+ 1504      656E7365 
+ 1504      536C6964 
+ 1504      65724E6F 
+ 1505              	.LASF32:
+ 1506 0078 4359424C 		.ascii	"CYBLE_EVT_GAP_CONNECTION_UPDATE_COMPLETE\000"
+ 1506      455F4556 
+ 1506      545F4741 
+ 1506      505F434F 
+ 1506      4E4E4543 
+ 1507              	.LASF30:
+ 1508 00a1 4359424C 		.ascii	"CYBLE_EVT_GAP_DEVICE_DISCONNECTED\000"
+ 1508      455F4556 
+ 1508      545F4741 
+ 1508      505F4445 
+ 1508      56494345 
+ 1509              	.LASF115:
+ 1510 00c3 64657669 		.ascii	"deviceConnected\000"
+ 1510      6365436F 
+ 1510      6E6E6563 
+ 1510      74656400 
+ 1511              	.LASF2:
+ 1512 00d3 73686F72 		.ascii	"short int\000"
+ 1512      7420696E 
+ 1512      7400
+ 1513              	.LASF27:
+ 1514 00dd 4359424C 		.ascii	"CYBLE_EVT_GAP_AUTH_FAILED\000"
+ 1514      455F4556 
+ 1514      545F4741 
+ 1514      505F4155 
+ 1514      54485F46 
+ 1515              	.LASF37:
+ 1516 00f7 4359424C 		.ascii	"CYBLE_EVT_GATT_DISCONNECT_IND\000"
+ 1516      455F4556 
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 34
+
+
+ 1516      545F4741 
+ 1516      54545F44 
+ 1516      4953434F 
+ 1517              	.LASF15:
+ 1518 0115 73697A65 		.ascii	"sizetype\000"
+ 1518      74797065 
+ 1518      00
+ 1519              	.LASF83:
+ 1520 011e 636F6E6E 		.ascii	"connHandle\000"
+ 1520      48616E64 
+ 1520      6C6500
+ 1521              	.LASF103:
+ 1522 0129 43757374 		.ascii	"CustomEventHandler\000"
+ 1522      6F6D4576 
+ 1522      656E7448 
+ 1522      616E646C 
+ 1522      657200
+ 1523              	.LASF100:
+ 1524 013c 77725265 		.ascii	"wrReqParam\000"
+ 1524      71506172 
+ 1524      616D00
+ 1525              	.LASF35:
+ 1526 0147 4359424C 		.ascii	"CYBLE_EVT_GATTC_ERROR_RSP\000"
+ 1526      455F4556 
+ 1526      545F4741 
+ 1526      5454435F 
+ 1526      4552524F 
+ 1527              	.LASF98:
+ 1528 0161 6576656E 		.ascii	"event\000"
+ 1528      7400
+ 1529              	.LASF20:
+ 1530 0167 4359424C 		.ascii	"CYBLE_EVT_HCI_STATUS\000"
+ 1530      455F4556 
+ 1530      545F4843 
+ 1530      495F5354 
+ 1530      41545553 
+ 1531              	.LASF41:
+ 1532 017c 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_BY_TYPE_RSP\000"
+ 1532      455F4556 
+ 1532      545F4741 
+ 1532      5454435F 
+ 1532      52454144 
+ 1533              	.LASF17:
+ 1534 019d 4359424C 		.ascii	"CYBLE_EVT_STACK_ON\000"
+ 1534      455F4556 
+ 1534      545F5354 
+ 1534      41434B5F 
+ 1534      4F4E00
+ 1535              	.LASF94:
+ 1536 01b0 4359424C 		.ascii	"CYBLE_STATE_CONNECTED\000"
+ 1536      455F5354 
+ 1536      4154455F 
+ 1536      434F4E4E 
+ 1536      45435445 
+ 1537              	.LASF38:
+ 1538 01c6 4359424C 		.ascii	"CYBLE_EVT_GATTS_XCNHG_MTU_REQ\000"
+ 1538      455F4556 
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 35
+
+
+ 1538      545F4741 
+ 1538      5454535F 
+ 1538      58434E48 
+ 1539              	.LASF110:
+ 1540 01e4 64656275 		.ascii	"debug_blue\000"
+ 1540      675F626C 
+ 1540      756500
+ 1541              	.LASF10:
+ 1542 01ef 75696E74 		.ascii	"uint16\000"
+ 1542      313600
+ 1543              	.LASF121:
+ 1544 01f6 433A5C55 		.ascii	"C:\\Users\\sunyi\\Desktop\\Yushen-Yang-BLE-Lab4\\BL"
+ 1544      73657273 
+ 1544      5C73756E 
+ 1544      79695C44 
+ 1544      65736B74 
+ 1545 0224 45204C61 		.ascii	"E Lab 4.cydsn\000"
+ 1545      6220342E 
+ 1545      63796473 
+ 1545      6E00
+ 1546              	.LASF75:
+ 1547 0232 61747449 		.ascii	"attId\000"
+ 1547      6400
+ 1548              	.LASF87:
+ 1549 0238 63757374 		.ascii	"customServCharDesc\000"
+ 1549      6F6D5365 
+ 1549      72764368 
+ 1549      61724465 
+ 1549      736300
+ 1550              	.LASF46:
+ 1551 024b 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_MULTI_RSP\000"
+ 1551      455F4556 
+ 1551      545F4741 
+ 1551      5454435F 
+ 1551      52454144 
+ 1552              	.LASF102:
+ 1553 026a 43617053 		.ascii	"CapSenseNotificationCCCDhandle\000"
+ 1553      656E7365 
+ 1553      4E6F7469 
+ 1553      66696361 
+ 1553      74696F6E 
+ 1554              	.LASF16:
+ 1555 0289 4359424C 		.ascii	"CYBLE_EVT_HOST_INVALID\000"
+ 1555      455F4556 
+ 1555      545F484F 
+ 1555      53545F49 
+ 1555      4E56414C 
+ 1556              	.LASF114:
+ 1557 02a0 6379426C 		.ascii	"cyBle_connHandle\000"
+ 1557      655F636F 
+ 1557      6E6E4861 
+ 1557      6E646C65 
+ 1557      00
+ 1558              	.LASF62:
+ 1559 02b1 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_CONN_IND\000"
+ 1559      455F4556 
+ 1559      545F4C32 
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 36
+
+
+ 1559      4341505F 
+ 1559      43424643 
+ 1560              	.LASF65:
+ 1561 02cf 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_DISCONN_CNF\000"
+ 1561      455F4556 
+ 1561      545F4C32 
+ 1561      4341505F 
+ 1561      43424643 
+ 1562              	.LASF106:
+ 1563 02f0 43617053 		.ascii	"CapSensenotificationHandle\000"
+ 1563      656E7365 
+ 1563      6E6F7469 
+ 1563      66696361 
+ 1563      74696F6E 
+ 1564              	.LASF74:
+ 1565 030b 62644861 		.ascii	"bdHandle\000"
+ 1565      6E646C65 
+ 1565      00
+ 1566              	.LASF12:
+ 1567 0314 666C6F61 		.ascii	"float\000"
+ 1567      7400
+ 1568              	.LASF104:
+ 1569 031a 53656E64 		.ascii	"SendCapSenseNotification\000"
+ 1569      43617053 
+ 1569      656E7365 
+ 1569      4E6F7469 
+ 1569      66696361 
+ 1570              	.LASF44:
+ 1571 0333 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_RSP\000"
+ 1571      455F4556 
+ 1571      545F4741 
+ 1571      5454435F 
+ 1571      52454144 
+ 1572              	.LASF48:
+ 1573 034c 4359424C 		.ascii	"CYBLE_EVT_GATTC_WRITE_RSP\000"
+ 1573      455F4556 
+ 1573      545F4741 
+ 1573      5454435F 
+ 1573      57524954 
+ 1574              	.LASF6:
+ 1575 0366 6C6F6E67 		.ascii	"long long int\000"
+ 1575      206C6F6E 
+ 1575      6720696E 
+ 1575      7400
+ 1576              	.LASF7:
+ 1577 0374 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1577      206C6F6E 
+ 1577      6720756E 
+ 1577      7369676E 
+ 1577      65642069 
+ 1578              	.LASF88:
+ 1579 038b 4359424C 		.ascii	"CYBLE_CUSTOMS_INFO_T\000"
+ 1579      455F4355 
+ 1579      53544F4D 
+ 1579      535F494E 
+ 1579      464F5F54 
+ 1580              	.LASF82:
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 37
+
+
+ 1581 03a0 4359424C 		.ascii	"CYBLE_GATTS_HANDLE_VALUE_NTF_T\000"
+ 1581      455F4741 
+ 1581      5454535F 
+ 1581      48414E44 
+ 1581      4C455F56 
+ 1582              	.LASF4:
+ 1583 03bf 6C6F6E67 		.ascii	"long int\000"
+ 1583      20696E74 
+ 1583      00
+ 1584              	.LASF54:
+ 1585 03c8 4359424C 		.ascii	"CYBLE_EVT_GATTC_HANDLE_VALUE_IND\000"
+ 1585      455F4556 
+ 1585      545F4741 
+ 1585      5454435F 
+ 1585      48414E44 
+ 1586              	.LASF105:
+ 1587 03e9 43617053 		.ascii	"CapSenseSliderData\000"
+ 1587      656E7365 
+ 1587      536C6964 
+ 1587      65724461 
+ 1587      746100
+ 1588              	.LASF29:
+ 1589 03fc 4359424C 		.ascii	"CYBLE_EVT_GAP_DEVICE_CONNECTED\000"
+ 1589      455F4556 
+ 1589      545F4741 
+ 1589      505F4445 
+ 1589      56494345 
+ 1590              	.LASF109:
+ 1591 041b 64656275 		.ascii	"debug_green\000"
+ 1591      675F6772 
+ 1591      65656E00 
+ 1592              	.LASF28:
+ 1593 0427 4359424C 		.ascii	"CYBLE_EVT_GAPP_ADVERTISEMENT_START_STOP\000"
+ 1593      455F4556 
+ 1593      545F4741 
+ 1593      50505F41 
+ 1593      44564552 
+ 1594              	.LASF53:
+ 1595 044f 4359424C 		.ascii	"CYBLE_EVT_GATTC_HANDLE_VALUE_NTF\000"
+ 1595      455F4556 
+ 1595      545F4741 
+ 1595      5454435F 
+ 1595      48414E44 
+ 1596              	.LASF21:
+ 1597 0470 4359424C 		.ascii	"CYBLE_EVT_STACK_BUSY_STATUS\000"
+ 1597      455F4556 
+ 1597      545F5354 
+ 1597      41434B5F 
+ 1597      42555359 
+ 1598              	.LASF85:
+ 1599 048c 4359424C 		.ascii	"CYBLE_GATTS_WRITE_REQ_PARAM_T\000"
+ 1599      455F4741 
+ 1599      5454535F 
+ 1599      57524954 
+ 1599      455F5245 
+ 1600              	.LASF101:
+ 1601 04aa 43617053 		.ascii	"CapSenseCCCDvalue\000"
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 38
+
+
+ 1601      656E7365 
+ 1601      43434344 
+ 1601      76616C75 
+ 1601      6500
+ 1602              	.LASF25:
+ 1603 04bc 4359424C 		.ascii	"CYBLE_EVT_GAP_PASSKEY_DISPLAY_REQUEST\000"
+ 1603      455F4556 
+ 1603      545F4741 
+ 1603      505F5041 
+ 1603      53534B45 
+ 1604              	.LASF117:
+ 1605 04e2 72676248 		.ascii	"rgbHandle\000"
+ 1605      616E646C 
+ 1605      6500
+ 1606              	.LASF91:
+ 1607 04ec 4359424C 		.ascii	"CYBLE_CUSTOMS_T\000"
+ 1607      455F4355 
+ 1607      53544F4D 
+ 1607      535F5400 
+ 1608              	.LASF63:
+ 1609 04fc 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_CONN_CNF\000"
+ 1609      455F4556 
+ 1609      545F4C32 
+ 1609      4341505F 
+ 1609      43424643 
+ 1610              	.LASF72:
+ 1611 051a 4359424C 		.ascii	"CYBLE_EVT_MAX\000"
+ 1611      455F4556 
+ 1611      545F4D41 
+ 1611      5800
+ 1612              	.LASF9:
+ 1613 0528 75696E74 		.ascii	"uint8\000"
+ 1613      3800
+ 1614              	.LASF59:
+ 1615 052e 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CONN_PARAM_UPDATE_REQ\000"
+ 1615      455F4556 
+ 1615      545F4C32 
+ 1615      4341505F 
+ 1615      434F4E4E 
+ 1616              	.LASF1:
+ 1617 0554 756E7369 		.ascii	"unsigned char\000"
+ 1617      676E6564 
+ 1617      20636861 
+ 1617      7200
+ 1618              	.LASF90:
+ 1619 0562 63757374 		.ascii	"customServInfo\000"
+ 1619      6F6D5365 
+ 1619      7276496E 
+ 1619      666F00
+ 1620              	.LASF50:
+ 1621 0571 4359424C 		.ascii	"CYBLE_EVT_GATTS_PREP_WRITE_REQ\000"
+ 1621      455F4556 
+ 1621      545F4741 
+ 1621      5454535F 
+ 1621      50524550 
+ 1622              	.LASF113:
+ 1623 0590 6379426C 		.ascii	"cyBle_state\000"
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 39
+
+
+ 1623      655F7374 
+ 1623      61746500 
+ 1624              	.LASF71:
+ 1625 059c 4359424C 		.ascii	"CYBLE_EVT_LE_PING_AUTH_TIMEOUT\000"
+ 1625      455F4556 
+ 1625      545F4C45 
+ 1625      5F50494E 
+ 1625      475F4155 
+ 1626              	.LASF42:
+ 1627 05bb 4359424C 		.ascii	"CYBLE_EVT_GATTC_FIND_INFO_RSP\000"
+ 1627      455F4556 
+ 1627      545F4741 
+ 1627      5454435F 
+ 1627      46494E44 
+ 1628              	.LASF0:
+ 1629 05d9 7369676E 		.ascii	"signed char\000"
+ 1629      65642063 
+ 1629      68617200 
+ 1630              	.LASF47:
+ 1631 05e5 4359424C 		.ascii	"CYBLE_EVT_GATTS_WRITE_REQ\000"
+ 1631      455F4556 
+ 1631      545F4741 
+ 1631      5454535F 
+ 1631      57524954 
+ 1632              	.LASF43:
+ 1633 05ff 4359424C 		.ascii	"CYBLE_EVT_GATTC_FIND_BY_TYPE_VALUE_RSP\000"
+ 1633      455F4556 
+ 1633      545F4741 
+ 1633      5454435F 
+ 1633      46494E44 
+ 1634              	.LASF26:
+ 1635 0626 4359424C 		.ascii	"CYBLE_EVT_GAP_AUTH_COMPLETE\000"
+ 1635      455F4556 
+ 1635      545F4741 
+ 1635      505F4155 
+ 1635      54485F43 
+ 1636              	.LASF8:
+ 1637 0642 756E7369 		.ascii	"unsigned int\000"
+ 1637      676E6564 
+ 1637      20696E74 
+ 1637      00
+ 1638              	.LASF55:
+ 1639 064f 4359424C 		.ascii	"CYBLE_EVT_GATTS_HANDLE_VALUE_CNF\000"
+ 1639      455F4556 
+ 1639      545F4741 
+ 1639      5454535F 
+ 1639      48414E44 
+ 1640              	.LASF36:
+ 1641 0670 4359424C 		.ascii	"CYBLE_EVT_GATT_CONNECT_IND\000"
+ 1641      455F4556 
+ 1641      545F4741 
+ 1641      54545F43 
+ 1641      4F4E4E45 
+ 1642              	.LASF5:
+ 1643 068b 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1643      20756E73 
+ 1643      69676E65 
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 40
+
+
+ 1643      6420696E 
+ 1643      7400
+ 1644              	.LASF23:
+ 1645 069d 4359424C 		.ascii	"CYBLE_EVT_GAP_AUTH_REQ\000"
+ 1645      455F4556 
+ 1645      545F4741 
+ 1645      505F4155 
+ 1645      54485F52 
+ 1646              	.LASF97:
+ 1647 06b4 4359424C 		.ascii	"CYBLE_STATE_T\000"
+ 1647      455F5354 
+ 1647      4154455F 
+ 1647      5400
+ 1648              	.LASF64:
+ 1649 06c2 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_DISCONN_IND\000"
+ 1649      455F4556 
+ 1649      545F4C32 
+ 1649      4341505F 
+ 1649      43424643 
+ 1650              	.LASF31:
+ 1651 06e3 4359424C 		.ascii	"CYBLE_EVT_GAP_ENCRYPT_CHANGE\000"
+ 1651      455F4556 
+ 1651      545F4741 
+ 1651      505F454E 
+ 1651      43525950 
+ 1652              	.LASF34:
+ 1653 0700 4359424C 		.ascii	"CYBLE_EVT_GAP_KEYINFO_EXCHNGE_CMPLT\000"
+ 1653      455F4556 
+ 1653      545F4741 
+ 1653      505F4B45 
+ 1653      59494E46 
+ 1654              	.LASF118:
+ 1655 0724 5247426C 		.ascii	"RGBledData\000"
+ 1655      65644461 
+ 1655      746100
+ 1656              	.LASF14:
+ 1657 072f 63686172 		.ascii	"char\000"
+ 1657      00
+ 1658              	.LASF78:
+ 1659 0734 4359424C 		.ascii	"CYBLE_GATT_VALUE_T\000"
+ 1659      455F4741 
+ 1659      54545F56 
+ 1659      414C5545 
+ 1659      5F5400
+ 1660              	.LASF119:
+ 1661 0747 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 1661      4320342E 
+ 1661      392E3320 
+ 1661      32303135 
+ 1661      30333033 
+ 1662 077a 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m0 -mthumb -g -O"
+ 1662      20726576 
+ 1662      6973696F 
+ 1662      6E203232 
+ 1662      31323230 
+ 1663 07ad 30202D66 		.ascii	"0 -ffunction-sections -ffat-lto-objects\000"
+ 1663      66756E63 
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 41
+
+
+ 1663      74696F6E 
+ 1663      2D736563 
+ 1663      74696F6E 
+ 1664              	.LASF61:
+ 1665 07d5 4359424C 		.ascii	"CYBLE_EVT_L2CAP_COMMAND_REJ\000"
+ 1665      455F4556 
+ 1665      545F4C32 
+ 1665      4341505F 
+ 1665      434F4D4D 
+ 1666              	.LASF3:
+ 1667 07f1 73686F72 		.ascii	"short unsigned int\000"
+ 1667      7420756E 
+ 1667      7369676E 
+ 1667      65642069 
+ 1667      6E7400
+ 1668              	.LASF96:
+ 1669 0804 4359424C 		.ascii	"CYBLE_STATE_DISCONNECTED\000"
+ 1669      455F5354 
+ 1669      4154455F 
+ 1669      44495343 
+ 1669      4F4E4E45 
+ 1670              	.LASF111:
+ 1671 081d 696E7465 		.ascii	"intensity_divide_value\000"
+ 1671      6E736974 
+ 1671      795F6469 
+ 1671      76696465 
+ 1671      5F76616C 
+ 1672              	.LASF108:
+ 1673 0834 64656275 		.ascii	"debug_red\000"
+ 1673      675F7265 
+ 1673      6400
+ 1674              	.LASF66:
+ 1675 083e 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_DATA_READ\000"
+ 1675      455F4556 
+ 1675      545F4C32 
+ 1675      4341505F 
+ 1675      43424643 
+ 1676              	.LASF45:
+ 1677 085d 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_BLOB_RSP\000"
+ 1677      455F4556 
+ 1677      545F4741 
+ 1677      5454435F 
+ 1677      52454144 
+ 1678              	.LASF95:
+ 1679 087b 4359424C 		.ascii	"CYBLE_STATE_ADVERTISING\000"
+ 1679      455F5354 
+ 1679      4154455F 
+ 1679      41445645 
+ 1679      52544953 
+ 1680              	.LASF52:
+ 1681 0893 4359424C 		.ascii	"CYBLE_EVT_GATTC_EXEC_WRITE_RSP\000"
+ 1681      455F4556 
+ 1681      545F4741 
+ 1681      5454435F 
+ 1681      45584543 
+ 1682              	.LASF11:
+ 1683 08b2 75696E74 		.ascii	"uint32\000"
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 42
+
+
+ 1683      333200
+ 1684              	.LASF70:
+ 1685 08b9 4359424C 		.ascii	"CYBLE_EVT_PENDING_FLASH_WRITE\000"
+ 1685      455F4556 
+ 1685      545F5045 
+ 1685      4E44494E 
+ 1685      475F464C 
+ 1686              	.LASF67:
+ 1687 08d7 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_RX_CREDIT_IND\000"
+ 1687      455F4556 
+ 1687      545F4C32 
+ 1687      4341505F 
+ 1687      43424643 
+ 1688              	.LASF80:
+ 1689 08fa 61747472 		.ascii	"attrHandle\000"
+ 1689      48616E64 
+ 1689      6C6500
+ 1690              	.LASF13:
+ 1691 0905 646F7562 		.ascii	"double\000"
+ 1691      6C6500
+ 1692              	.LASF76:
+ 1693 090c 4359424C 		.ascii	"CYBLE_CONN_HANDLE_T\000"
+ 1693      455F434F 
+ 1693      4E4E5F48 
+ 1693      414E444C 
+ 1693      455F5400 
+ 1694              	.LASF81:
+ 1695 0920 4359424C 		.ascii	"CYBLE_GATT_HANDLE_VALUE_PAIR_T\000"
+ 1695      455F4741 
+ 1695      54545F48 
+ 1695      414E444C 
+ 1695      455F5641 
+ 1696              	.LASF68:
+ 1697 093f 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_TX_CREDIT_IND\000"
+ 1697      455F4556 
+ 1697      545F4C32 
+ 1697      4341505F 
+ 1697      43424643 
+ 1698              	.LASF86:
+ 1699 0962 63757374 		.ascii	"customServCharHandle\000"
+ 1699      6F6D5365 
+ 1699      72764368 
+ 1699      61724861 
+ 1699      6E646C65 
+ 1700              	.LASF19:
+ 1701 0977 4359424C 		.ascii	"CYBLE_EVT_HARDWARE_ERROR\000"
+ 1701      455F4556 
+ 1701      545F4841 
+ 1701      52445741 
+ 1701      52455F45 
+ 1702              	.LASF92:
+ 1703 0990 4359424C 		.ascii	"CYBLE_STATE_STOPPED\000"
+ 1703      455F5354 
+ 1703      4154455F 
+ 1703      53544F50 
+ 1703      50454400 
+ 1704              	.LASF60:
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 43
+
+
+ 1705 09a4 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CONN_PARAM_UPDATE_RSP\000"
+ 1705      455F4556 
+ 1705      545F4C32 
+ 1705      4341505F 
+ 1705      434F4E4E 
+ 1706              	.LASF22:
+ 1707 09ca 4359424C 		.ascii	"CYBLE_EVT_GAPC_SCAN_PROGRESS_RESULT\000"
+ 1707      455F4556 
+ 1707      545F4741 
+ 1707      50435F53 
+ 1707      43414E5F 
+ 1708              	.LASF77:
+ 1709 09ee 61637475 		.ascii	"actualLen\000"
+ 1709      616C4C65 
+ 1709      6E00
+ 1710              	.LASF40:
+ 1711 09f8 4359424C 		.ascii	"CYBLE_EVT_GATTC_READ_BY_GROUP_TYPE_RSP\000"
+ 1711      455F4556 
+ 1711      545F4741 
+ 1711      5454435F 
+ 1711      52454144 
+ 1712              	.LASF49:
+ 1713 0a1f 4359424C 		.ascii	"CYBLE_EVT_GATTS_WRITE_CMD_REQ\000"
+ 1713      455F4556 
+ 1713      545F4741 
+ 1713      5454535F 
+ 1713      57524954 
+ 1714              	.LASF39:
+ 1715 0a3d 4359424C 		.ascii	"CYBLE_EVT_GATTC_XCHNG_MTU_RSP\000"
+ 1715      455F4556 
+ 1715      545F4741 
+ 1715      5454435F 
+ 1715      5843484E 
+ 1716              	.LASF18:
+ 1717 0a5b 4359424C 		.ascii	"CYBLE_EVT_TIMEOUT\000"
+ 1717      455F4556 
+ 1717      545F5449 
+ 1717      4D454F55 
+ 1717      5400
+ 1718              	.LASF69:
+ 1719 0a6d 4359424C 		.ascii	"CYBLE_EVT_L2CAP_CBFC_DATA_WRITE_IND\000"
+ 1719      455F4556 
+ 1719      545F4C32 
+ 1719      4341505F 
+ 1719      43424643 
+ 1720              	.LASF33:
+ 1721 0a91 4359424C 		.ascii	"CYBLE_EVT_GAPC_SCAN_START_STOP\000"
+ 1721      455F4556 
+ 1721      545F4741 
+ 1721      50435F53 
+ 1721      43414E5F 
+ 1722              	.LASF58:
+ 1723 0ab0 4359424C 		.ascii	"CYBLE_EVT_GATTS_READ_CHAR_VAL_ACCESS_REQ\000"
+ 1723      455F4556 
+ 1723      545F4741 
+ 1723      5454535F 
+ 1723      52454144 
+ARM GAS  C:\Users\sunyi\AppData\Local\Temp\ccjimDxZ.s 			page 44
+
+
+ 1724              	.LASF57:
+ 1725 0ad9 4359424C 		.ascii	"CYBLE_EVT_GATTC_STOP_CMD_COMPLETE\000"
+ 1725      455F4556 
+ 1725      545F4741 
+ 1725      5454435F 
+ 1725      53544F50 
+ 1726              	.LASF79:
+ 1727 0afb 76616C75 		.ascii	"value\000"
+ 1727      6500
+ 1728              	.LASF51:
+ 1729 0b01 4359424C 		.ascii	"CYBLE_EVT_GATTS_EXEC_WRITE_REQ\000"
+ 1729      455F4556 
+ 1729      545F4741 
+ 1729      5454535F 
+ 1729      45584543 
+ 1730              	.LASF73:
+ 1731 0b20 4359424C 		.ascii	"CYBLE_GATT_DB_ATTR_HANDLE_T\000"
+ 1731      455F4741 
+ 1731      54545F44 
+ 1731      425F4154 
+ 1731      54525F48 
+ 1732              	.LASF99:
+ 1733 0b3c 6576656E 		.ascii	"eventParam\000"
+ 1733      74506172 
+ 1733      616D00
+ 1734              	.LASF112:
+ 1735 0b47 6379426C 		.ascii	"cyBle_customs\000"
+ 1735      655F6375 
+ 1735      73746F6D 
+ 1735      7300
+ 1736              	.LASF56:
+ 1737 0b55 4359424C 		.ascii	"CYBLE_EVT_GATTS_DATA_SIGNED_CMD_REQ\000"
+ 1737      455F4556 
+ 1737      545F4741 
+ 1737      5454535F 
+ 1737      44415441 
+ 1738              	.LASF120:
+ 1739 0b79 2E5C424C 		.ascii	".\\BLEApplications.c\000"
+ 1739      45417070 
+ 1739      6C696361 
+ 1739      74696F6E 
+ 1739      732E6300 
+ 1740              	.LASF89:
+ 1741 0b8d 63757374 		.ascii	"customServHandle\000"
+ 1741      6F6D5365 
+ 1741      72764861 
+ 1741      6E646C65 
+ 1741      00
+ 1742              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br
